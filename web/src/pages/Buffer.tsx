@@ -323,6 +323,11 @@ export function Buffer() {
   const [dialog, setDialog] = useState<Dialog>(null);
   // The last import, to find its tracks in the library.
   const [imported, setImported] = useState<{ batch: number; count: number } | null>(null);
+  // Per-file import decision: staged_file_id -> existing track id to replace into.
+  // Files not in this map are imported as new tracks.
+  const [replaceInto, setReplaceInto] = useState<Map<number, number>>(new Map());
+  // Files selected for the pending import dialog (those with duplicates).
+  const [importPending, setImportPending] = useState<number[]>(null);
 
   // Files that need no look are selected as they become ready.
   useEffect(() => {
@@ -364,14 +369,37 @@ export function Buffer() {
   }, [task.data?.status, task.data?.report, task.data?.error, toast, refresh, client]);
 
   const importFiles = useAction(
-    (ids: number[]) => unwrap(api.POST("/api/v1/staging/import", { body: { file_ids: ids } })),
+    ({ ids, replace }: { ids: number[]; replace: [number, number][] }) =>
+      unwrap(
+        api.POST("/api/v1/staging/import", {
+          body: { file_ids: ids, replace_into: replace },
+        }),
+      ),
     {
       onSuccess: (queued) => {
         setTaskId(queued.id);
         setSelected(new Set());
+        setReplaceInto(new Map());
+        setImportPending(null);
       },
     },
   );
+
+  const handleImport = () => {
+    const importable = [...selected].filter(
+      (id: number) => files.find((f) => f.id === id)?.status === "ready",
+    );
+    if (importable.length === 0) return;
+    const withDuplicates = importable.filter(
+      (id: number) => files.find((f) => f.id === id)?.duplicate_of_track_id != null,
+    );
+    if (withDuplicates.length > 0 && importPending === null) {
+      setImportPending(importable);
+      return;
+    }
+    const replace: [number, number][] = [...replaceInto.entries()];
+    importFiles.mutate({ ids: importable, replace });
+  };
   const discard = useAction(
     (ids: number[]) => unwrap(api.POST("/api/v1/staging/discard", { body: { file_ids: ids } })),
     {
@@ -469,7 +497,7 @@ export function Buffer() {
                 type="button"
                 className="btn small primary"
                 disabled={importable.length === 0 || importing || importFiles.isPending}
-                onClick={() => importFiles.mutate(importable)}
+                onClick={handleImport}
               >
                 <Icon name="check" size={14} /> {t("buffer.import", { count: importable.length })}
               </button>
@@ -1133,6 +1161,115 @@ function Details({ file, canEdit }: Readonly<{ file: StagedFile; canEdit: boolea
         </div>
       )}
       <TagsDialog open={editing} onClose={() => setEditing(false)} files={[file.id]} current={file.tags ?? file.own_tags} />
+      {importPending !== null && (
+        <ImportReplaceDialog
+          pending={importPending}
+          files={files}
+          replaceInto={replaceInto}
+          onChange={setReplaceInto}
+          onConfirm={() => {
+            const replace: [number, number][] = [...replaceInto.entries()];
+            importFiles.mutate({ ids: importPending, replace });
+            setImportPending(null);
+          }}
+          onCancel={() => setImportPending(null)}
+        />
+      )}
     </div>
+  );
+}
+
+function ImportReplaceDialog({
+  pending,
+  files,
+  replaceInto,
+  onChange,
+  onConfirm,
+  onCancel,
+}: Readonly<{
+  pending: number[];
+  files: { id: number; name: string; duplicate_of_track_id: number | null }[];
+  replaceInto: Map<number, number>;
+  onChange: (map: Map<number, number>) => void;
+  onConfirm: () => void;
+  onCancel: () => void;
+}>) {
+  const toReplace = new Set(replaceInto.keys());
+
+  return (
+    <Modal title="Replace existing tracks?" open onClose={onCancel}>
+      <form className="stack" onSubmit={(event) => { event.preventDefault(); onConfirm(); }}>
+        <p>
+          Some files duplicate tracks already in the library. Choose how to import each:
+        </p>
+        <table className="table">
+          <thead>
+            <tr>
+              <th>{"File"}</th>
+              <th>{"Duplicate of"}</th>
+              <th>{"Action"}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {pending.map((id) => {
+              const file = files.find((f) => f.id === id);
+              if (!file) return null;
+              const existingId = file.duplicate_of_track_id;
+              const isReplace = toReplace.has(id);
+              return (
+                <tr key={id}>
+                  <td className="title-cell">{file.name}</td>
+                  <td>
+                    {existingId != null && (
+                      <Link to={`/library/${existingId}`}>track {existingId}</Link>
+                    )}
+                  </td>
+                  <td>
+                    <label className="row">
+                      <input
+                        type="radio"
+                        name={`import-${id}`}
+                        value="new"
+                        checked={!isReplace}
+                        onChange={() => {
+                          const next = new Map(replaceInto);
+                          next.delete(id);
+                          onChange(next);
+                        }}
+                      />
+                      {"Import as new"}
+                    </label>
+                    {existingId != null && (
+                      <label className="row">
+                        <input
+                          type="radio"
+                          name={`import-${id}`}
+                          value="replace"
+                          checked={isReplace}
+                          onChange={() => {
+                            const next = new Map(replaceInto);
+                            next.set(id, existingId);
+                            onChange(next);
+                          }}
+                        />
+                        {"Replace existing track"}
+                      </label>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+        <div className="row">
+          <button type="button" className="btn" onClick={onCancel}>
+            {"Cancel"}
+          </button>
+          <button type="submit" className="btn primary">
+            {"Import"}
+          </button>
+        </div>
+      </form>
+    </Modal>
   );
 }

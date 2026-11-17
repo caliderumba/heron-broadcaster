@@ -701,6 +701,8 @@ struct ToImport {
     chromaprint: Option<Vec<u8>>,
     identification: Option<StagedIdentification>,
     choice: Option<StagedChoice>,
+    /// Existing library track this file duplicates, if any.
+    duplicate_of_track_id: Option<u64>,
 }
 
 impl ToImport {
@@ -775,6 +777,7 @@ pub async fn import(
     endpoints: &Endpoints,
     settings: &LibrarySettings,
     file_ids: &[u64],
+    replace_into: &[(u64, u64)],
 ) -> Result<BatchReport, Error> {
     let batch_id = journal::create_batch(pool, BatchKind::Import, None).await?;
     let mut report = BatchReport {
@@ -796,12 +799,20 @@ pub async fn import(
     let mut planned = HashSet::new();
     let mut album_dirs: HashMap<String, std::path::PathBuf> = HashMap::new();
     let mut group_dirs = HashSet::new();
+    // staged_file_id -> existing track id to replace into.
+    let replace_map: HashMap<u64, u64> = replace_into.iter().copied().collect();
     for chunk in files.chunks(LOCK_CHUNK) {
         let lock = LibraryLock::acquire(pool, "librarian").await?;
         for file in chunk {
             group_dirs.insert(file.group_id);
-            run.import_one(file, &mut planned, &mut album_dirs, &mut report)
-                .await?;
+            run.import_one(
+                file,
+                &replace_map,
+                &mut planned,
+                &mut album_dirs,
+                &mut report,
+            )
+            .await?;
         }
         lock.release().await?;
     }
@@ -910,6 +921,7 @@ impl ImportRun<'_> {
     async fn import_one(
         &self,
         file: &ToImport,
+        replace_map: &HashMap<u64, u64>,
         planned: &mut HashSet<String>,
         album_dirs: &mut HashMap<String, std::path::PathBuf>,
         report: &mut BatchReport,
@@ -928,6 +940,71 @@ impl ImportRun<'_> {
             .as_ref()
             .and_then(|release| covers.get(release))
             .filter(|_| settings.embed_cover && !file.has_cover);
+
+        // When the user chose to replace an existing track, overwrite that
+        // track's file in place: same track_id, categories, labels, history.
+        // The file keeps its current path (e.g. .mp3) but its bytes become the
+        // new higher-quality file (e.g. WAV/FLAC content).
+        if let (Some(&track_id), Some(duplicate_id)) =
+            (replace_map.get(&file.id), file.duplicate_of_track_id)
+        {
+            if track_id == duplicate_id {
+                let existing_path: Option<String> = sqlx::query_scalar(
+                    "SELECT path FROM tracks WHERE id = ? AND deleted_at IS NULL",
+                )
+                .bind(track_id)
+                .fetch_optional(pool)
+                .await?;
+                if let Some(existing_path) = existing_path {
+                    let to = LibraryPath::from_stored(existing_path);
+                    let operation = Operation {
+                        batch_id,
+                        subject: Subject::Replace(track_id),
+                        from: Origin::Staging(file.staged_path.clone()),
+                        to: to.clone(),
+                        retag: None,
+                        expected_stamp: None,
+                    };
+                    let outcome = journal::execute(pool, roots, operation).await;
+                    let (status, error) = match &outcome {
+                        Ok(_) => ("imported", None),
+                        Err(OpError::Database(_)) => ("importing", None),
+                        Err(OpError::SourceMissing) => {
+                            ("failed", Some("the file is gone".to_owned()))
+                        }
+                        Err(error) => ("ready", Some(error.to_string())),
+                    };
+                    if let Err(OpError::Database(error)) = outcome {
+                        return Err(error.into());
+                    }
+                    sqlx::query(
+                        "UPDATE staged_files SET status = ?, track_id = ?, error = ? WHERE id = ?",
+                    )
+                    .bind(status)
+                    .bind(Some(track_id))
+                    .bind(&error)
+                    .bind(file.id)
+                    .execute(pool)
+                    .await?;
+                    match error {
+                        None => {
+                            report.done += 1;
+                            tracing::info!(
+                                from = %file.staged_path,
+                                %to,
+                                "replaced track {track_id} from the buffer zone"
+                            );
+                        }
+                        Some(reason) => report.skipped.push(SkippedFile {
+                            path: file.staged_path.to_string(),
+                            reason,
+                        }),
+                    }
+                    return Ok(());
+                }
+            }
+        }
+
         let retag = (file.applied != file.own || cover.is_some()).then(|| Retag {
             change: TagChange::Tags {
                 previous: Box::new(file.own.clone()),
@@ -1002,7 +1079,8 @@ async fn load_claimed(pool: &MySqlPool, id: u64) -> Result<ToImport, sqlx::Error
     let row = sqlx::query(
         "SELECT id, group_id, staged_path, CAST(tags AS CHAR) AS tags,
                 CAST(applied_tags AS CHAR) AS applied, duration_ms, has_cover, chromaprint,
-                CAST(identification AS CHAR) AS identification, CAST(choice AS CHAR) AS choice
+                CAST(identification AS CHAR) AS identification, CAST(choice AS CHAR) AS choice,
+                duplicate_of_track_id
          FROM staged_files WHERE id = ?",
     )
     .bind(id)
@@ -1026,6 +1104,7 @@ async fn load_claimed(pool: &MySqlPool, id: u64) -> Result<ToImport, sqlx::Error
         chromaprint: row.try_get("chromaprint")?,
         identification: parse("identification").and_then(|json| serde_json::from_str(&json).ok()),
         choice: parse("choice").and_then(|json| serde_json::from_str(&json).ok()),
+        duplicate_of_track_id: row.try_get("duplicate_of_track_id").ok().flatten(),
     })
 }
 

@@ -100,6 +100,9 @@ impl Origin {
 #[derive(Clone, Debug)]
 pub enum Subject {
     Existing(u64),
+    /// Replaces an existing library track in place: same `track_id`,
+    /// categories, labels, history; the file at `to` is overwritten.
+    Replace(u64),
     /// A file imported from the buffer zone: its track is created.
     New(Box<NewTrack>),
 }
@@ -323,7 +326,10 @@ pub async fn execute(pool: &MySqlPool, roots: &Roots, op: Operation) -> Result<u
     if op.expected_stamp.is_some_and(|expected| expected != source) {
         return Err(OpError::SourceChanged);
     }
-    if !in_place && !is_free(pool, roots, &op.to).await? {
+    if !in_place
+        && !matches!(op.subject, Subject::Replace(_))
+        && !is_free(pool, roots, &op.to).await?
+    {
         return Err(OpError::TargetTaken(op.to));
     }
 
@@ -389,7 +395,7 @@ fn temp_path(to: &LibraryPath, move_id: u64) -> LibraryPath {
 async fn record(pool: &MySqlPool, op: &Operation, copy: bool) -> Result<(u64, u64), OpError> {
     let mut tx = pool.begin().await?;
     let existing = match &op.subject {
-        Subject::Existing(id) => Some(*id),
+        Subject::Existing(id) | Subject::Replace(id) => Some(*id),
         Subject::New(_) => None,
     };
     let move_id = sqlx::query(
@@ -414,7 +420,7 @@ async fn record(pool: &MySqlPool, op: &Operation, copy: bool) -> Result<(u64, u6
     }
 
     let track_id = match &op.subject {
-        Subject::Existing(id) => *id,
+        Subject::Existing(id) | Subject::Replace(id) => *id,
         Subject::New(track) => {
             // Missing until the file is in place: never played, never analyzed.
             let id = sqlx::query(
@@ -538,6 +544,11 @@ async fn transfer(
     } = *step;
     if let Some(parent) = to.parent() {
         tokio::fs::create_dir_all(parent).await?;
+    }
+    // When replacing an existing track, remove the file at `to` so the
+    // rename/copy below can overwrite it in place.
+    if matches!(op.subject, Subject::Replace(_)) {
+        let _ = tokio::fs::remove_file(to).await;
     }
     if op.retag.is_none() {
         let (from_owned, to_owned) = (from.to_path_buf(), to.to_path_buf());

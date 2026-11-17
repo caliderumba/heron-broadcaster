@@ -911,6 +911,7 @@ async fn prepare_files(
     user.require(Role::Operator)?;
     let ids = selection(&FileSelection {
         file_ids: change.file_ids.clone(),
+        replace_into: vec![],
     })?;
     if change.add_categories.is_empty()
         && change.remove_categories.is_empty()
@@ -1066,6 +1067,7 @@ async fn edit_staged_tags(
     user.require(Role::Operator)?;
     let ids = selection(&FileSelection {
         file_ids: edit.file_ids.clone(),
+        replace_into: vec![],
     })?;
     if edit.set.is_empty() && edit.reset.is_empty() {
         return Err(ApiError::Invalid("no field to edit".to_owned()));
@@ -1187,6 +1189,12 @@ async fn get_staged_audio(
 #[serde(deny_unknown_fields)]
 pub struct FileSelection {
     pub file_ids: Vec<u64>,
+    /// Pairs of `(staged_file_id, existing_track_id)`: the staged file
+    /// replaces the existing track's file in place instead of creating a
+    /// new track. Only files with `duplicate_of_track_id` set may be
+    /// replaced.
+    #[serde(default)]
+    pub replace_into: Vec<(u64, u64)>,
 }
 
 fn selection(selection: &FileSelection) -> ApiResult<Vec<u64>> {
@@ -1212,7 +1220,15 @@ async fn import_files(
 ) -> ApiResult<(StatusCode, Json<LibraryTask>)> {
     user.require(Role::Operator)?;
     let file_ids = selection(&request)?;
-    let task = ask(&state, &user, TaskRequest::StagingImport { file_ids }).await?;
+    let task = ask(
+        &state,
+        &user,
+        TaskRequest::StagingImport {
+            file_ids,
+            replace_into: request.replace_into,
+        },
+    )
+    .await?;
     Ok((StatusCode::ACCEPTED, Json(task)))
 }
 

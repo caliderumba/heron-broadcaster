@@ -50,7 +50,10 @@ pub enum TaskRequest {
         all: bool,
     },
     /// Imports files of the buffer zone into the library, as one batch.
-    StagingImport { file_ids: Vec<u64> },
+    /// `replace_into` pairs are `(staged_file_id, existing_track_id)`: the
+    /// staged file replaces the existing track's file in place instead of
+    /// creating a new track.
+    StagingImport { file_ids: Vec<u64>, replace_into: Vec<(u64, u64)> },
     /// Moves tracks to the trash, as one batch (undone to restore them).
     Delete { track_ids: Vec<u64> },
     /// Purges the whole trash now.

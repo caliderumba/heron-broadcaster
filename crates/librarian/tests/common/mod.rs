@@ -415,7 +415,7 @@ pub async fn import_ready(
             .await
             .unwrap();
     let settings = heron_librarian::import::load_settings(pool).await.unwrap();
-    heron_librarian::staging::import(pool, roots, &endpoints, &settings, &ready)
+    heron_librarian::staging::import(pool, roots, &endpoints, &settings, &ready, &[])
         .await
         .unwrap()
 }

@@ -1,3 +1,5 @@
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.62s
+     Running `target/debug/heron-api openapi`
 {
   "openapi": "3.1.0",
   "info": {
@@ -15241,6 +15243,26 @@
               "format": "int64",
               "minimum": 0
             }
+          },
+          "replace_into": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": false,
+              "prefixItems": [
+                {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 0
+                },
+                {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 0
+                }
+              ]
+            },
+            "description": "Pairs of `(staged_file_id, existing_track_id)`: the staged file\nreplaces the existing track's file in place instead of creating a\nnew track. Only files with `duplicate_of_track_id` set may be\nreplaced."
           }
         },
         "additionalProperties": false
@@ -21738,9 +21760,10 @@
           },
           {
             "type": "object",
-            "description": "Imports files of the buffer zone into the library, as one batch.",
+            "description": "Imports files of the buffer zone into the library, as one batch.\n`replace_into` pairs are `(staged_file_id, existing_track_id)`: the\nstaged file replaces the existing track's file in place instead of\ncreating a new track.",
             "required": [
               "file_ids",
+              "replace_into",
               "kind"
             ],
             "properties": {
@@ -21757,6 +21780,25 @@
                 "enum": [
                   "staging_import"
                 ]
+              },
+              "replace_into": {
+                "type": "array",
+                "items": {
+                  "type": "array",
+                  "items": false,
+                  "prefixItems": [
+                    {
+                      "type": "integer",
+                      "format": "int64",
+                      "minimum": 0
+                    },
+                    {
+                      "type": "integer",
+                      "format": "int64",
+                      "minimum": 0
+                    }
+                  ]
+                }
               }
             }
           },
