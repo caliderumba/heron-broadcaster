@@ -1037,6 +1037,30 @@ impl ImportRun<'_> {
             expected_stamp: None,
         };
         let outcome = journal::execute(pool, roots, operation).await;
+        // If writing tags into the file failed (e.g. a Wav/Flac whose tags
+        // lofty cannot encode), fall back to importing the file as-is:
+        // same bytes, no tag changes. The track keeps whatever tags the
+        // file already carries.
+        let outcome = match outcome {
+            Err(OpError::Tags(_)) => {
+                let operation = Operation {
+                    batch_id,
+                    subject: Subject::New(Box::new(NewTrack {
+                        tags: file.applied.clone(),
+                        duration_ms: file.duration_ms,
+                        chromaprint: file.chromaprint.clone().map(Chromaprint::from_compressed),
+                        identification: file.track_identification(),
+                        prepared_from: Some(file.id),
+                    })),
+                    from: Origin::Staging(file.staged_path.clone()),
+                    to: to.clone(),
+                    retag: None,
+                    expected_stamp: None,
+                };
+                journal::execute(pool, roots, operation).await
+            }
+            other => other,
+        };
         let (status, track_id, error) = match &outcome {
             Ok(track_id) => ("imported", Some(*track_id), None),
             Err(OpError::Database(_)) => ("importing", None, None),
