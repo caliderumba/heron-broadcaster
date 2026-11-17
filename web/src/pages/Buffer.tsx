@@ -905,11 +905,17 @@ function TagsDialog({
   current?: Schemas["StagedTags"] | null | undefined;
 }>) {
   const [changes, setChanges] = useState<Partial<Record<TagField, Change<string>>>>({});
+  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [coverBase64, setCoverBase64] = useState<string | null>(
+    current?.cover ?? null,
+  );
   useEffect(() => {
     if (open) {
       setChanges({});
+      setCoverFile(null);
+      setCoverBase64(current?.cover ?? null);
     }
-  }, [open]);
+  }, [open, current]);
   const apply = useAction(
     () => {
       const set: Record<string, string | null> = {};
@@ -919,7 +925,17 @@ function TagsDialog({
           set[field] = value;
         }
       }
-      return unwrap(api.POST("/api/v1/staging/files/tags", { body: { file_ids: files, set } }));
+      // Cover art: Base64-encoded image, or null to clear.
+      if (coverBase64) {
+        set["cover"] = coverBase64;
+      } else if (coverFile === null && changes["cover"]?.kind === "clear") {
+        set["cover"] = null;
+      }
+      return unwrap(
+        api.POST("/api/v1/staging/files/tags", {
+          body: { file_ids: files, set },
+        }),
+      );
     },
     {
       success: (result) => t("buffer.tagsEdited", { count: result.files }),
@@ -927,10 +943,17 @@ function TagsDialog({
       onSuccess: onClose,
     },
   );
-  const edited = Object.values(changes).some((change) => change && change.kind !== "keep");
+  const edited = Object.values(changes).some(
+    (change) => change && change.kind !== "keep",
+  );
+  const hasCoverEdit = coverBase64 !== (current?.cover ?? null);
   const invalid = EDITABLE.some(({ field, number }) => {
     const change = changes[field];
-    return change?.kind === "set" && (!change.value.trim() || (number && (Number.isNaN(Number(change.value)) || Number(change.value) < 1)));
+    return (
+      change?.kind === "set" &&
+      (!change.value.trim() ||
+        (number && (Number.isNaN(Number(change.value)) || Number(change.value) < 1)))
+    );
   });
   return (
     <Modal
@@ -946,7 +969,12 @@ function TagsDialog({
           <button
             type="button"
             className="btn primary"
-            disabled={!edited || invalid || apply.isPending}
+            disabled={
+              !edited &&
+              !hasCoverEdit &&
+              !invalid &&
+              !apply.isPending
+            }
             onClick={() => apply.mutate(undefined)}
           >
             {t("selection.apply")}
@@ -967,11 +995,16 @@ function TagsDialog({
                 key={field}
                 label={
                   value !== undefined && value !== null && value !== false
-                    ? t("selection.currentValue", { field: name, value: String(value) })
+                    ? t("selection.currentValue", {
+                        field: name,
+                        value: String(value),
+                      })
                     : name
                 }
                 change={changes[field] ?? { kind: "keep" }}
-                onChange={(change) => setChanges((all) => ({ ...all, [field]: change }))}
+                onChange={(change) =>
+                  setChanges((all) => ({ ...all, [field]: change }))
+                }
                 renderInput={(text, set) => (
                   <input
                     className="input"
@@ -986,6 +1019,48 @@ function TagsDialog({
             );
           })}
         </div>
+        <fieldset className="stack" style={{ border: 0, padding: 0, margin: 0 }}>
+          <legend className="small">{t("buffer.tag.cover")}</legend>
+          <div className="row">
+            <label className="check">
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                onChange={(event) => {
+                  const file = event.target.files?.[0] ?? null;
+                  setCoverFile(file);
+                  if (file) {
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                      const result = reader.result as string;
+                      setCoverBase64(result);
+                    };
+                    reader.readAsDataURL(file);
+                  } else {
+                    setCoverBase64(null);
+                  }
+                }}
+              />
+              {coverFile ? (
+                <span className="muted small">{coverFile.name}</span>
+              ) : (
+                <span className="muted small">{t("buffer.tag.cover")}</span>
+              )}
+            </label>
+            {coverBase64 && (
+              <button
+                type="button"
+                className="btn small ghost"
+                onClick={() => {
+                  setCoverFile(null);
+                  setCoverBase64(null);
+                }}
+              >
+                {t("selection.clear")}
+              </button>
+            )}
+          </div>
+        </fieldset>
       </div>
     </Modal>
   );

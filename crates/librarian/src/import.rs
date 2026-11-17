@@ -336,6 +336,7 @@ pub(crate) fn merge(identified: Tags, own: &Tags) -> Tags {
         disc_total: identified.disc_total.or(own.disc_total),
         date: identified.date.or_else(|| own.date.clone()),
         compilation: identified.compilation,
+        cover: identified.cover.or_else(|| own.cover.clone()),
         musicbrainz: identified.musicbrainz,
     }
 }

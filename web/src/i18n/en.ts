@@ -1716,6 +1716,7 @@ const en = {
   "buffer.tag.track": "Track",
   "buffer.tag.disc": "Disc",
   "buffer.tag.date": "Date",
+  "buffer.tag.cover": "Album cover",
   "buffer.candidate": "Candidate release",
   "buffer.score": "Score",
   "buffer.actions": "Actions",

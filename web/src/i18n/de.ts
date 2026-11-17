@@ -1718,6 +1718,7 @@ const de = {
   "buffer.tag.track": "Titelnr.",
   "buffer.tag.disc": "CD",
   "buffer.tag.date": "Datum",
+  "buffer.tag.cover": "Albumcover",
   "buffer.candidate": "Mögliche Veröffentlichung",
   "buffer.score": "Punktzahl",
   "buffer.actions": "Aktionen",

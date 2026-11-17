@@ -1756,6 +1756,7 @@ dependencies = [
 name = "heron-library"
 version = "0.3.0"
 dependencies = [
+ "base64 0.23.1",
  "blake3",
  "heron-core",
  "heron-service",

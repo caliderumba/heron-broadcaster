@@ -18,6 +18,7 @@ use lofty::picture::{MimeType, Picture, PictureType};
 use lofty::tag::{Accessor, ItemKey, Tag};
 use serde::{Deserialize, Serialize};
 
+use base64::Engine as _;
 use crate::properties::AudioProperties;
 
 #[derive(Debug, thiserror::Error)]
@@ -46,6 +47,8 @@ pub struct Tags {
     pub date: Option<String>,
     /// Part of a various-artists compilation.
     pub compilation: bool,
+    /// Album cover art, as a Base64-encoded image (JPEG, PNG, …).
+    pub cover: Option<String>,
     pub musicbrainz: MusicBrainzIds,
 }
 
@@ -127,6 +130,7 @@ pub fn read(path: &Path) -> Result<FileTags, TagError> {
         compilation: tag
             .get_string(ItemKey::FlagCompilation)
             .is_some_and(|flag| flag.trim() == "1"),
+        cover: None,
         musicbrainz: MusicBrainzIds {
             recording: text(ItemKey::MusicBrainzRecordingId),
             release_track: text(ItemKey::MusicBrainzTrackId),
@@ -209,7 +213,20 @@ pub fn write(path: &Path, tags: &Tags, cover: Cover<'_>) -> Result<(), TagError>
         None => tag.remove_disk_total(),
     }
 
-    match cover {
+    let cover_bytes: Option<Vec<u8>> = match &tags.cover {
+        Some(b64) => Some(
+            base64::engine::general_purpose::STANDARD.decode(b64).map_err(|error| {
+                TagError::Write(std::io::Error::new(
+                    std::io::ErrorKind::InvalidData,
+                    format!("invalid cover base64: {error}"),
+                ).into())
+            })?,
+        ),
+        None => None,
+    };
+    let effective_cover = cover_bytes.as_deref().map_or(cover, |b| Cover::Embed(b));
+
+    match effective_cover {
         Cover::Keep => {}
         Cover::Embed(jpeg) => {
             tag.remove_picture_type(PictureType::CoverFront);
@@ -255,6 +272,7 @@ fn field_value(tag: &Tag, field: TagField) -> Option<String> {
         TagField::RecordLabel => text(label_key(tag)),
         TagField::Bpm => text(ItemKey::Bpm).or_else(|| text(ItemKey::IntegerBpm)),
         TagField::Mood => text(ItemKey::Mood),
+        TagField::Cover => None,
     }
 }
 
@@ -326,6 +344,7 @@ pub fn write_fields(path: &Path, values: &FieldValues) -> Result<(), TagError> {
                 }
             }
             TagField::Mood => set_text(tag, ItemKey::Mood, value),
+            TagField::Cover => {},
         }
     }
     Ok(tagged.save_to_path(path, WriteOptions::default())?)
@@ -384,6 +403,7 @@ mod tests {
             disc_total: Some(1),
             date: Some("1959-08-17".into()),
             compilation: false,
+            cover: None,
             musicbrainz: MusicBrainzIds {
                 recording: Some("7a3b1c2d-0000-4000-8000-000000000001".into()),
                 release_track: Some("7a3b1c2d-0000-4000-8000-000000000002".into()),

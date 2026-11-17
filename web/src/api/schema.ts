@@ -7739,6 +7739,7 @@ export interface components {
             album_artist?: string | null;
             artist?: string | null;
             compilation: boolean;
+            cover?: string | null;
             date?: string | null;
             /** Format: int32 */
             disc?: number | null;
@@ -7931,7 +7932,7 @@ export interface components {
          * @description A tag Heron edits in the files, besides those identification writes.
          * @enum {string}
          */
-        TagField: "title" | "artist" | "album" | "album_artist" | "year" | "genre" | "track" | "disc" | "isrc" | "record_label" | "bpm" | "mood";
+        TagField: "title" | "artist" | "album" | "album_artist" | "year" | "genre" | "track" | "disc" | "isrc" | "record_label" | "bpm" | "mood" | "cover";
         TagOverrides: {
             selection: components["schemas"]["TrackSelection"];
             /**

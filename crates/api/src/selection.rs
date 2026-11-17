@@ -615,7 +615,7 @@ fn column(field: TagField) -> Option<&'static str> {
         TagField::Year => "year",
         TagField::Track => "track_number",
         TagField::Disc => "disc_number",
-        TagField::Isrc | TagField::RecordLabel | TagField::Bpm | TagField::Mood => return None,
+        TagField::Isrc | TagField::RecordLabel | TagField::Bpm | TagField::Mood | TagField::Cover => return None,
     })
 }
 

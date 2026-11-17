@@ -1718,6 +1718,7 @@ const es = {
   "buffer.tag.track": "Pista",
   "buffer.tag.disc": "Disco",
   "buffer.tag.date": "Fecha",
+  "buffer.tag.cover": "Portada del álbum",
   "buffer.candidate": "Edición candidata",
   "buffer.score": "Puntuación",
   "buffer.actions": "Acciones",

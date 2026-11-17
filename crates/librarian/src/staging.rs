@@ -123,6 +123,7 @@ pub fn apply_edits(tags: &Tags, edits: &FieldValues) -> Tags {
             TagField::Year => tags.date.clone_from(value),
             TagField::Track => tags.track = number(value),
             TagField::Disc => tags.disc = number(value),
+            TagField::Cover => tags.cover.clone_from(value),
             // Not edited in the buffer zone.
             _ => {}
         }

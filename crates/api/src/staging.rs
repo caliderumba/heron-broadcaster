@@ -113,6 +113,8 @@ pub struct StagedTags {
     pub disc_total: Option<u32>,
     pub date: Option<String>,
     pub compilation: bool,
+    /// Album cover art, as a Base64-encoded image (JPEG, PNG, …).
+    pub cover: Option<String>,
 }
 
 impl From<Tags> for StagedTags {
@@ -128,6 +130,7 @@ impl From<Tags> for StagedTags {
             disc_total: tags.disc_total,
             date: tags.date,
             compilation: tags.compilation,
+            cover: tags.cover,
         }
     }
 }
@@ -1027,7 +1030,7 @@ async fn prepare_files(
 
 /// Fields edited in the buffer zone: those the layout and the import's
 /// tags use.
-const EDITABLE: [TagField; 7] = [
+const EDITABLE: [TagField; 8] = [
     TagField::Title,
     TagField::Artist,
     TagField::Album,
@@ -1035,6 +1038,7 @@ const EDITABLE: [TagField; 7] = [
     TagField::Year,
     TagField::Track,
     TagField::Disc,
+    TagField::Cover,
 ];
 
 #[derive(Debug, Deserialize, ToSchema)]

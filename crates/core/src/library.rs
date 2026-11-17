@@ -106,10 +106,12 @@ pub enum TagField {
     RecordLabel,
     Bpm,
     Mood,
+    /// Album cover art, as a Base64-encoded image (JPEG, PNG, …).
+    Cover,
 }
 
 impl TagField {
-    pub const ALL: [Self; 12] = [
+    pub const ALL: [Self; 13] = [
         Self::Title,
         Self::Artist,
         Self::Album,
@@ -122,6 +124,7 @@ impl TagField {
         Self::RecordLabel,
         Self::Bpm,
         Self::Mood,
+        Self::Cover,
     ];
 
     /// The programming details that can be written into the files.
@@ -147,6 +150,7 @@ impl TagField {
             Self::RecordLabel => "record_label",
             Self::Bpm => "bpm",
             Self::Mood => "mood",
+            Self::Cover => "cover",
         }
     }
 
@@ -199,6 +203,7 @@ impl TagField {
                     Err(format!("{value:?} is not an ISRC (CC-XXX-YY-NNNNN)"))
                 }
             }
+            Self::Cover => Ok(value.chars().take(MAX_COVER_CHARS).collect()),
             _ => Ok(value.chars().take(MAX_FIELD_CHARS).collect()),
         }
     }
@@ -206,6 +211,9 @@ impl TagField {
 
 /// Longest text value written into a tag (the width of the `tracks` columns).
 pub const MAX_FIELD_CHARS: usize = 512;
+
+/// Longest Base64 cover art value accepted when editing tags.
+pub const MAX_COVER_CHARS: usize = 4_000_000;
 
 /// Values of tag fields; `None` removes the field.
 pub type FieldValues = BTreeMap<TagField, Option<String>>;

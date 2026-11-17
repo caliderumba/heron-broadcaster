@@ -783,6 +783,7 @@ impl MbRelease {
             disc_total: u32::try_from(self.media.len()).ok(),
             date,
             compilation: album_artist_id.as_deref() == Some(VARIOUS_ARTISTS_ID),
+            cover: None,
             musicbrainz: MusicBrainzIds {
                 recording: Some(found.recording.id.clone()),
                 release_track: Some(found.id.clone()),

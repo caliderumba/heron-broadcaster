@@ -1,4 +1,8 @@
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.62s
+   Compiling heron-outputs v0.3.0 (/home/leonardo/Projects/heron-broadcaster/crates/outputs)
+   Compiling heron-analysis v0.3.0 (/home/leonardo/Projects/heron-broadcaster/crates/analysis)
+   Compiling heron-library v0.3.0 (/home/leonardo/Projects/heron-broadcaster/crates/library)
+   Compiling heron-api v0.3.0 (/home/leonardo/Projects/heron-broadcaster/crates/api)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 57.10s
      Running `target/debug/heron-api openapi`
 {
   "openapi": "3.1.0",
@@ -21048,6 +21052,13 @@
           "compilation": {
             "type": "boolean"
           },
+          "cover": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Album cover art, as a Base64-encoded image (JPEG, PNG, …)."
+          },
           "date": {
             "type": [
               "string",
@@ -21473,7 +21484,8 @@
           "isrc",
           "record_label",
           "bpm",
-          "mood"
+          "mood",
+          "cover"
         ]
       },
       "TagOverrides": {
