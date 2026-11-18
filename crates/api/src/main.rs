@@ -12,6 +12,7 @@ mod app;
 mod artists;
 mod auth;
 mod backups;
+mod carts;
 mod categories;
 mod category_types;
 mod clocks;

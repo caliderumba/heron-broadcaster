@@ -28,7 +28,7 @@ use crate::listeners::Collector;
 use crate::stations::Stations;
 use crate::webhooks::Webhooks;
 use crate::{
-    about, agc, artists, categories, category_types, clocks, eq, history, import, labels,
+    about, agc, artists, carts, categories, category_types, clocks, eq, history, import, labels,
     librarian, listeners, live, medleys, outputs, player, public, restrictions, rotation,
     schedules, selection, settings, staging, stations, tracks, users, webhooks,
 };
@@ -124,6 +124,7 @@ fn api() -> OpenApiRouter<AppState> {
         .merge(librarian::router())
         .merge(import::router())
         .merge(staging::router())
+        .merge(carts::router())
         .merge(categories::router())
         .merge(category_types::router())
         .merge(medleys::router())

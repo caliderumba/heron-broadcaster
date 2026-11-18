@@ -6937,3 +6937,224 @@ async fn tracks_have_their_lowest_and_highest_level() {
     assert_eq!(detail["level_max_db"], Value::Null);
     station.stop().await;
 }
+
+/// The cart wall: pages of pads per station, twelve pads to a page, and a
+/// pad firing the FX player; each station has its own wall.
+#[tokio::test(flavor = "multi_thread")]
+async fn cart_wall_pages_and_pads() {
+    let Some(mut station) = Station::start().await else {
+        return;
+    };
+    let admin = station.signed_in("admin").await;
+    let viewer = station.signed_in("viewer").await;
+    let track = station.tracks[0];
+    let other = station.tracks[1];
+
+    assert_eq!(admin.get("/cart-pages").await, json!([]));
+
+    // Only operators see and manage the wall.
+    let (status, _) = viewer.request(Method::GET, "/cart-pages", None).await;
+    assert_eq!(status, StatusCode::FORBIDDEN);
+    let (status, _) = viewer
+        .send(Method::POST, "/cart-pages", json!({"name": "Jingles"}))
+        .await;
+    assert_eq!(status, StatusCode::FORBIDDEN);
+
+    // Two pages; the second moved to the front.
+    let (status, jingles) = admin
+        .send(Method::POST, "/cart-pages", json!({"name": "Jingles"}))
+        .await;
+    assert_eq!(status, StatusCode::CREATED, "{jingles}");
+    assert_eq!(jingles["position"], json!(0));
+    let (status, ids) = admin
+        .send(Method::POST, "/cart-pages", json!({"name": "IDs"}))
+        .await;
+    assert_eq!(status, StatusCode::CREATED, "{ids}");
+    let ids_id = ids["id"].as_u64().unwrap();
+    let (status, moved) = admin
+        .send(
+            Method::PUT,
+            &format!("/cart-pages/{ids_id}"),
+            json!({"name": "IDs", "position": 0}),
+        )
+        .await;
+    assert_eq!(status, StatusCode::OK, "{moved}");
+    assert_eq!(moved["position"], json!(0));
+    let pages = admin.get("/cart-pages").await;
+    let names: Vec<&str> = pages
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|page| page["name"].as_str().unwrap())
+        .collect();
+    assert_eq!(names, ["IDs", "Jingles"]);
+    let positions: Vec<u64> = pages
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|page| page["position"].as_u64().unwrap())
+        .collect();
+    assert_eq!(positions, [0, 1], "positions stay dense");
+
+    // A pad, with the track's title as its label.
+    let page_id = jingles["id"].as_u64().unwrap();
+    let (status, cart) = admin
+        .send(
+            Method::POST,
+            "/carts",
+            json!({"page_id": page_id, "track_id": track}),
+        )
+        .await;
+    assert_eq!(status, StatusCode::CREATED, "{cart}");
+    assert_eq!(cart["position"], json!(0));
+    assert_eq!(cart["track_id"], json!(track));
+    assert_eq!(cart["missing"], json!(false));
+    assert!(
+        cart["label"]
+            .as_str()
+            .is_some_and(|label| !label.is_empty()),
+        "{cart}"
+    );
+    let cart_id = cart["id"].as_u64().unwrap();
+
+    // A colour is #rrggbb, and the label can be changed.
+    let (status, _) = admin
+        .send(
+            Method::POST,
+            "/carts",
+            json!({"page_id": page_id, "track_id": track, "color": "red"}),
+        )
+        .await;
+    assert_eq!(status, StatusCode::UNPROCESSABLE_ENTITY);
+    let (status, recoloured) = admin
+        .send(
+            Method::PUT,
+            &format!("/carts/{cart_id}"),
+            json!({"page_id": page_id, "track_id": track, "label": "Liner", "color": "#FF8800"}),
+        )
+        .await;
+    assert_eq!(status, StatusCode::OK, "{recoloured}");
+    assert_eq!(recoloured["label"], json!("Liner"));
+    assert_eq!(recoloured["color"], json!("#ff8800"));
+
+    // Twelve pads to a page.
+    for _ in 0..11 {
+        let (status, cart) = admin
+            .send(
+                Method::POST,
+                "/carts",
+                json!({"page_id": page_id, "track_id": other}),
+            )
+            .await;
+        assert_eq!(status, StatusCode::CREATED, "{cart}");
+    }
+    let (status, _) = admin
+        .send(
+            Method::POST,
+            "/carts",
+            json!({"page_id": page_id, "track_id": other}),
+        )
+        .await;
+    assert_eq!(status, StatusCode::CONFLICT);
+    let carts = admin.get(&format!("/carts?page_id={page_id}")).await;
+    assert_eq!(carts.as_array().unwrap().len(), 12);
+
+    // A pad fires the FX player.
+    let (status, played) = admin
+        .send(Method::POST, &format!("/carts/{cart_id}/play"), json!({}))
+        .await;
+    assert_eq!(status, StatusCode::OK, "{played}");
+    assert!(played["entry_id"].as_u64().is_some(), "{played}");
+
+    // A pad whose file is gone says so and refuses to play.
+    sqlx::query("UPDATE tracks SET missing_since = NOW() WHERE id = ?")
+        .bind(track)
+        .execute(&station.state.pool)
+        .await
+        .unwrap();
+    let cart = admin
+        .get(&format!("/carts?page_id={page_id}"))
+        .await
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|cart| cart["id"].as_u64() == Some(cart_id))
+        .cloned()
+        .unwrap();
+    assert_eq!(cart["missing"], json!(true), "{cart}");
+    let (status, _) = admin
+        .send(Method::POST, &format!("/carts/{cart_id}/play"), json!({}))
+        .await;
+    assert_eq!(status, StatusCode::CONFLICT);
+
+    // Deleting the page takes its pads with it.
+    let (status, _) = admin
+        .request(Method::DELETE, &format!("/cart-pages/{page_id}"), None)
+        .await;
+    assert_eq!(status, StatusCode::NO_CONTENT);
+    assert_eq!(admin.get("/carts").await, json!([]));
+    let pages = admin.get("/cart-pages").await;
+    assert_eq!(pages.as_array().unwrap().len(), 1);
+    assert_eq!(pages[0]["id"], json!(ids_id));
+
+    // A second station has its own cart wall, completely isolated.
+    let (_engine2, _state_dir2, second_url, grpc2) =
+        start_engine(station.library.path(), None).await;
+    station.tasks.push(grpc2);
+    station.state.stations.set_engine("station2", &second_url);
+    let (status, created) = admin
+        .send(
+            Method::POST,
+            "/stations",
+            json!({"name": "Station 2", "code": "station2"}),
+        )
+        .await;
+    assert_eq!(status, StatusCode::CREATED, "{created}");
+    let station2_id = created["id"].as_u64().unwrap();
+
+    // Second station has no cart pages initially.
+    let s2_pages = admin
+        .get(&format!("/stations/{station2_id}/cart-pages"))
+        .await;
+    assert_eq!(s2_pages, json!([]));
+
+    // Add a page to the second station.
+    let (status, s2_page) = admin
+        .send(
+            Method::POST,
+            &format!("/stations/{station2_id}/cart-pages"),
+            json!({"name": "Station 2 FX"}),
+        )
+        .await;
+    assert_eq!(status, StatusCode::CREATED, "{s2_page}");
+    let s2_page_id = s2_page["id"].as_u64().unwrap();
+
+    // Add a pad to the second station's page.
+    let (status, s2_cart) = admin
+        .send(
+            Method::POST,
+            &format!("/stations/{station2_id}/carts"),
+            json!({"page_id": s2_page_id, "track_id": other, "label": "Station 2 Drop"}),
+        )
+        .await;
+    assert_eq!(status, StatusCode::CREATED, "{s2_cart}");
+
+    // The first station still has only its own page and carts.
+    let s1_pages = admin.get("/cart-pages").await;
+    assert_eq!(s1_pages.as_array().unwrap().len(), 1);
+    assert_eq!(s1_pages[0]["id"], json!(ids_id));
+
+    // The second station only has its own page and carts.
+    let s2_pages_after = admin
+        .get(&format!("/stations/{station2_id}/cart-pages"))
+        .await;
+    assert_eq!(s2_pages_after.as_array().unwrap().len(), 1);
+    assert_eq!(s2_pages_after[0]["id"], json!(s2_page_id));
+    assert_eq!(s2_pages_after[0]["carts"].as_array().unwrap().len(), 1);
+    assert_eq!(
+        s2_pages_after[0]["carts"][0]["label"],
+        json!("Station 2 Drop")
+    );
+
+    station.stop().await;
+}
