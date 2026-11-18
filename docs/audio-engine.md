@@ -78,7 +78,7 @@ A track whose category type plays **over the intro** (on for *Jingle*, set on th
 - In the queue, the jingle stays before its track (marked *Over the intro*) and can be moved or removed: the pair is cued again from the new order. Inserting a track between them makes the jingle play on its own.
 - Skipping the track before its jingle starts drops the jingle; skipping it while the jingle plays fades both out.
 - The jingle is in the play history (on the FX deck) and counts for rotation like any pick. It sends no metadata if its type sends none.
-- There is no ducking: the jingle is mixed over the intro at its own level (loudness-normalized like any track).
+- **Ducking:** while an effect, voice link or jingle plays on the FX player (over the intro or triggered from the cart wall) and its category has *ducks the music* enabled, the music playing on Decks A and B smoothly follows a duck ramp down by `depth_db` (default −9 dB) over `attack_ms` (default 150 ms). When the effect finishes or is stopped/replaced, the music returns to full level over `release_ms` (default 600 ms). When ducking is disabled in settings or the category opts out (such as a music bed or ambient FX), the music stays at full level. Ducking composes with running crossfades, pause, and the master AGC chain, allocating nothing on the audio thread and producing no clicks.
 - A handover waits until the jingle has played.
 - *On air* shows it coming: the FX player card says *Next* with a countdown to the jingle's start (in the warning color for its last 5 s), and the song's progress bar marks where the jingle starts. The engine's state gives the waiting jingle as `pending_jingle`; in the queue, before the song starts, its badge says where in the song it starts.
 
@@ -114,6 +114,10 @@ Stored under `playout` in the `settings` table (JSON, missing fields take the de
 | `loudness.peak_ceiling_dbtp` | −1 |
 | `silence_watchdog.enabled` | true |
 | `silence_watchdog.timeout_ms` | 20,000: longer than the analysis' longest silence inside a track (15 s) |
+| `ducking.enabled` | true |
+| `ducking.depth_db` | −9 (range: 0 to −24 dB) |
+| `ducking.attack_ms` | 150 (range: 50 to 1,000 ms) |
+| `ducking.release_ms` | 600 (range: 100 to 5,000 ms) |
 
 The crossfade point itself (dB trigger, minimum and maximum fade time) is found at import, see [Import and analysis](analysis.md#crossfade-point).
 
@@ -122,9 +126,9 @@ The crossfade point itself (dB trigger, minimum and maximum fade time) is found 
 Two 10-band graphic EQs, built in [M9](roadmap/m9-deck-eq.md): **music**, on Decks A and B, and **FX**, on the FX player. Decks A and B take turns, so they share one EQ, and a track sounds the same on either.
 
 ```
-deck A: source ─► × gain (loudness, fades) ─► EQ (music settings, deck A's filters) ─► meter ─┐
-deck B: source ─► × gain (loudness, fades) ─► EQ (music settings, deck B's filters) ─► meter ─┼─► Σ ─► pause ─► AGC chain ─► clip ─► master meter
-FX:     source ─► × gain (loudness, fades) ─► EQ (FX settings,    FX filters)       ─► meter ─┘
+deck A: source ─► × gain (loudness, fades, ducking) ─► EQ (music settings, deck A's filters) ─► meter ─┐
+deck B: source ─► × gain (loudness, fades, ducking) ─► EQ (music settings, deck B's filters) ─► meter ─┼─► Σ ─► pause ─► AGC chain ─► clip ─► master meter
+FX:     source ─► × gain (loudness, fades)          ─► EQ (FX settings,    FX filters)       ─► meter ─┘
 ```
 
 During a crossfade both decks play through the music EQ, each with its own filters. A deck's filters start from rest when a track starts on it, so nothing of the previous track rings into the next.

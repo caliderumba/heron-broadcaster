@@ -54,6 +54,28 @@ A **Stream Deck** or a MIDI console needs nothing special: map the buttons to `F
 
 The routes are in [API – Cart wall](api.md#routes) (`/cart-pages`, `/carts`, `/carts/{id}/play`).
 
+## Voice links and live ducking
+
+### Voice over music (Crossfade & loudness)
+
+The *Crossfade & loudness* page provides a **Voice over music** card to configure live ducking:
+- **Depth:** attenuation of the music on Decks A and B while an effect, voice link or jingle plays on the FX player (0 to −24 dB, default −9 dB).
+- **Attack:** time to ramp down the music (50 to 1,000 ms, default 150 ms).
+- **Release:** time to restore the music to full volume once the effect finishes, stops, or is skipped (100 to 5,000 ms, default 600 ms).
+- **Category toggle:** each category has a *Ducks the music* checkbox (enabled by default; disabled for background beds or ambient FX so they play without lowering the main decks).
+
+### Record voice (Voice links)
+
+On *On air* and in studio mode, operators can record live voice links:
+1. Click **Record voice**, choosing the track currently on air or another library track.
+2. The browser monitors the selected track through headphones from its cue-in point without sending it to the station stream.
+3. The operator speaks into their microphone, captured locally via the browser's `MediaRecorder` API.
+4. The take can be stopped, reviewed in headphones, discarded, or re-recorded.
+5. Uploading sends the audio to `POST /api/v1/stations/{id}/voice-links`. `heron-librarian` converts the audio with FFmpeg, tags it (date/time in title, operator in artist), files it into the station's *Voice track* category, and returns the newly created track.
+6. The voice track can then be played over the on-air track's intro (`over_intro`) or pinned to a cart wall pad.
+
+See [API – Voice links](api.md#routes) (`POST /stations/{id}/voice-links`).
+
 ## Painting the schedule
 
 On *Schedule*, pick a clock (or *No clock*), then:
