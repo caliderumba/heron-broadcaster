@@ -80,6 +80,8 @@ message Track {
   bool over_intro = 15;
   // Where the intro ends (the vocals start), in ms on the file's timeline.
   optional uint32 intro_ms = 16;
+  // Whether playing this track on FX ducks the music decks (default true).
+  optional bool ducks_music = 17;
 }
 
 message QueueEntry {

@@ -18,7 +18,7 @@
 use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, AtomicU32, AtomicU64, Ordering};
 
-use heron_core::playout::{Ramp, TrackPlayout, Transition};
+use heron_core::playout::{DuckingSettings, Ramp, TrackPlayout, Transition};
 use heron_core::{EQ_BANDS, FadeCurve};
 use heron_dsp::agc::ChainParams;
 use heron_dsp::{Chain, GraphicEq};
@@ -173,6 +173,8 @@ pub struct LoadedTrack {
     /// track its own, and the mixer gives it back in [`Event::Uncued`] and
     /// [`MixerStatus::cued_generation`]. 0 for none.
     pub generation: u64,
+    /// Whether this track, when played on the FX player, ducks the music decks.
+    pub ducks_music: bool,
 }
 
 /// A jingle played on the FX player over the intro of a track: it starts
@@ -233,6 +235,8 @@ pub enum Command {
     /// Plays a jingle on the FX player, on top of the decks. Replaces the one playing.
     PlayFx(Box<LoadedTrack>),
     StopFx,
+    /// Sets ducking parameters for music decks under FX playback.
+    SetDucking(DuckingSettings),
     /// New settings for a deck EQ: its filter gains, solved from the
     /// sliders by the control thread ([`heron_dsp::eq::filter_gains`]). They
     /// glide in, or with `glide: false` apply at once with the filters at
@@ -562,6 +566,8 @@ pub struct Mixer {
     meters: [BlockMeter; 3],
     /// The AGC chain on the master bus.
     chain: Chain,
+    ducking: DuckingSettings,
+    duck_gain: f32,
     commands: rtrb::Consumer<Command>,
     events: rtrb::Producer<Event>,
     trash: rtrb::Producer<Box<LoadedTrack>>,
@@ -594,6 +600,11 @@ impl Mixer {
             eqs: std::array::from_fn(|_| GraphicEq::new(SAMPLE_RATE)),
             meters: [BlockMeter::default(); 3],
             chain: Chain::new(SAMPLE_RATE),
+            ducking: DuckingSettings {
+                enabled: false,
+                ..DuckingSettings::default()
+            },
+            duck_gain: 1.0,
             commands: command_rx,
             events: event_tx,
             trash: trash_tx,
@@ -634,9 +645,18 @@ impl Mixer {
                 // The track on air first: when its audio ends early, the
                 // segment ends there, so the next track starts on that frame.
                 let main = self.main;
+                let duck_target = self.duck_target();
+                let duck_step = self.duck_step(duck_target);
+                let start_duck_gain = self.duck_gain;
                 if let Some(slot) = main {
                     let range = offset * CHANNELS..(offset + segment) * CHANNELS;
-                    let read = self.render_voice(slot, &mut out[range]);
+                    let read = self.render_voice(
+                        slot,
+                        &mut out[range],
+                        start_duck_gain,
+                        duck_target,
+                        duck_step,
+                    );
                     if self.voices[slot]
                         .as_ref()
                         .is_some_and(|voice| voice.position >= voice.stop_at)
@@ -646,8 +666,15 @@ impl Mixer {
                 }
                 for slot in (0..self.voices.len()).filter(|&slot| Some(slot) != main) {
                     let range = offset * CHANNELS..(offset + segment) * CHANNELS;
-                    self.render_voice(slot, &mut out[range]);
+                    self.render_voice(
+                        slot,
+                        &mut out[range],
+                        start_duck_gain,
+                        duck_target,
+                        duck_step,
+                    );
                 }
+                self.advance_duck(segment, duck_target, duck_step);
                 offset += segment;
                 self.frame += segment as u64;
                 if self.halt_due() {
@@ -746,6 +773,9 @@ impl Mixer {
                             EndReason::Stopped,
                         );
                     }
+                }
+                Command::SetDucking(ducking) => {
+                    self.ducking = ducking;
                 }
                 Command::SetEq {
                     eq,
@@ -990,8 +1020,50 @@ impl Mixer {
             .clamp(1, remaining)
     }
 
+    fn fx_ducks(&self) -> bool {
+        self.voices[2]
+            .as_ref()
+            .is_some_and(|voice| voice.track.ducks_music && voice.position < voice.stop_at)
+    }
+
+    fn duck_target(&self) -> f32 {
+        if self.ducking.enabled && self.fx_ducks() && self.ducking.depth_db < 0.0 {
+            10.0f32.powf((self.ducking.depth_db as f32) / 20.0)
+        } else {
+            1.0
+        }
+    }
+
+    fn duck_step(&self, target: f32) -> f32 {
+        let min_gain = 10.0f32.powf((self.ducking.depth_db as f32) / 20.0);
+        if target < self.duck_gain {
+            let attack_frames = ms_to_frames(self.ducking.attack_ms.max(1)) as f32;
+            (1.0 - min_gain) / attack_frames
+        } else if target > self.duck_gain {
+            let release_frames = ms_to_frames(self.ducking.release_ms.max(1)) as f32;
+            (1.0 - min_gain) / release_frames
+        } else {
+            0.0
+        }
+    }
+
+    fn advance_duck(&mut self, frames: usize, target: f32, step: f32) {
+        if target < self.duck_gain {
+            self.duck_gain = (self.duck_gain - step * frames as f32).max(target);
+        } else if target > self.duck_gain {
+            self.duck_gain = (self.duck_gain + step * frames as f32).min(target);
+        }
+    }
+
     /// Adds the voice in `slot` to `out` and returns the frames it played.
-    fn render_voice(&mut self, slot: usize, out: &mut [f32]) -> usize {
+    fn render_voice(
+        &mut self,
+        slot: usize,
+        out: &mut [f32],
+        start_duck_gain: f32,
+        duck_target: f32,
+        duck_step: f32,
+    ) -> usize {
         let Some(voice) = &mut self.voices[slot] else {
             return 0;
         };
@@ -1004,8 +1076,19 @@ impl Mixer {
         let scratch = &mut self.scratch[..wanted * CHANNELS];
         let read = voice.track.source.read(scratch);
         let played = &mut scratch[..read * CHANNELS];
+        let is_music_deck = slot == 0 || slot == 1;
         for (index, frame) in played.as_chunks_mut::<CHANNELS>().0.iter_mut().enumerate() {
-            let gain = voice.track.gain * voice.gain_at(voice.position + index as u64);
+            let mut gain = voice.track.gain * voice.gain_at(voice.position + index as u64);
+            if is_music_deck {
+                let duck = if duck_target < start_duck_gain {
+                    (start_duck_gain - duck_step * (index as f32 + 1.0)).max(duck_target)
+                } else if duck_target > start_duck_gain {
+                    (start_duck_gain + duck_step * (index as f32 + 1.0)).min(duck_target)
+                } else {
+                    start_duck_gain
+                };
+                gain *= duck;
+            }
             frame[0] *= gain;
             frame[1] *= gain;
         }

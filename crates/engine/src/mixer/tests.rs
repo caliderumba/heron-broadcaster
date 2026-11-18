@@ -33,6 +33,7 @@ fn track(entry_id: u64, samples: &[f32]) -> Box<LoadedTrack> {
         gain: 1.0,
         fade_in: None,
         generation: 0,
+        ducks_music: true,
     })
 }
 
@@ -394,6 +395,7 @@ fn underruns_play_silence_and_are_reported() {
             gain: 1.0,
             fade_in: None,
             generation: 0,
+            ducks_music: true,
         }),
         FrameTransition::back_to_back(),
     );
@@ -477,6 +479,7 @@ fn cued_tracks_wait_for_their_audio() {
             gain: 1.0,
             fade_in: None,
             generation: 0,
+            ducks_music: true,
         }),
         FrameTransition::back_to_back(),
     );
@@ -867,4 +870,275 @@ fn the_agc_starts_from_the_gain_handed_over() {
         assert!((out - sample * gain).abs() < 1e-5);
     }
     assert_eq!(mixer.status.agc.agc_gain_db(), Some(4.0));
+}
+
+#[test]
+fn ducking_drops_music_by_configured_depth_and_releases() {
+    let depth_db = -12.0;
+    let target_gain = 10f32.powf(depth_db as f32 / 20.0);
+    let attack_ms = 100_u32;
+    let release_ms = 200_u32;
+    let attack_frames = (attack_ms as usize * SAMPLE_RATE as usize) / 1000;
+    let release_frames = (release_ms as usize * SAMPLE_RATE as usize) / 1000;
+    let fx_frames = 48_000_usize; // 1 second
+    let total_frames = 96_000_usize; // 2 seconds
+
+    let (mut mixer, mut handle) = Mixer::new(BLOCK_FRAMES);
+    assert!(
+        handle
+            .commands
+            .push(Command::SetDucking(DuckingSettings {
+                enabled: true,
+                depth_db,
+                attack_ms,
+                release_ms,
+            }))
+            .is_ok()
+    );
+
+    // Constant DC 1.0 on Deck A so output directly reflects duck_gain.
+    let music: Vec<f32> = vec![1.0; total_frames * CHANNELS];
+    // Silent FX so output is Deck A only.
+    let jingle: Vec<f32> = vec![0.0; fx_frames * CHANNELS];
+
+    cue(
+        &mut handle,
+        track(1, &music),
+        FrameTransition::back_to_back(),
+    );
+    assert!(
+        handle
+            .commands
+            .push(Command::PlayFx(track(2, &jingle)))
+            .is_ok()
+    );
+
+    let output = render(&mut mixer, total_frames, BLOCK_FRAMES);
+
+    // During attack: starts at 1.0 and ramps down linearly to target_gain.
+    let first_sample = output[0];
+    assert!((first_sample - 1.0).abs() < 1e-3, "starts at 1.0");
+
+    // At the end of attack, gain should reach target_gain within 1 dB tolerance.
+    let at_attack_end = output[attack_frames * CHANNELS];
+    let measured_db = 20.0 * at_attack_end.log10();
+    assert!(
+        (measured_db - depth_db as f32).abs() < 0.2,
+        "reached target depth within 0.2 dB: {measured_db} dB vs {depth_db} dB"
+    );
+
+    // Mid-FX (fully ducked): gain holds steady at target_gain.
+    let mid_fx_frame = fx_frames / 2;
+    let mid_sample = output[mid_fx_frame * CHANNELS];
+    assert!(
+        (mid_sample - target_gain).abs() < 1e-4,
+        "gain holds at target during FX: {mid_sample} vs {target_gain}"
+    );
+
+    // When FX ends (at fx_frames), release ramps linearly back to 1.0 over release_frames.
+    let release_end_frame = fx_frames + release_frames;
+    let at_release_end = output[release_end_frame * CHANNELS];
+    assert!(
+        (at_release_end - 1.0).abs() < 1e-3,
+        "restored to 1.0 after release: {at_release_end}"
+    );
+
+    // After release: remains at 1.0.
+    for frame in (release_end_frame + 100)..total_frames {
+        let sample = output[frame * CHANNELS];
+        assert!(
+            (sample - 1.0).abs() < 1e-4,
+            "remains at full level after release at frame {frame}: {sample}"
+        );
+    }
+}
+
+#[test]
+fn ducking_disabled_or_opt_out_category_does_not_lower_music() {
+    let total_frames = 24_000_usize;
+    let music: Vec<f32> = tone(total_frames, 440.0, 0.4);
+    let silent_jingle: Vec<f32> = vec![0.0; 12_000 * CHANNELS];
+
+    // Case 1: FX category opts out (ducks_music = false).
+    {
+        let (mut mixer, mut handle) = Mixer::new(BLOCK_FRAMES);
+        assert!(
+            handle
+                .commands
+                .push(Command::SetDucking(DuckingSettings {
+                    enabled: true,
+                    depth_db: -12.0,
+                    attack_ms: 100,
+                    release_ms: 200,
+                }))
+                .is_ok()
+        );
+        cue(
+            &mut handle,
+            track(1, &music),
+            FrameTransition::back_to_back(),
+        );
+        let mut fx = track(2, &silent_jingle);
+        fx.ducks_music = false;
+        assert!(handle.commands.push(Command::PlayFx(fx)).is_ok());
+
+        let output = render(&mut mixer, total_frames, BLOCK_FRAMES);
+        assert_matches(&output, &music);
+    }
+
+    // Case 2: Ducking disabled globally in settings.
+    {
+        let (mut mixer, mut handle) = Mixer::new(BLOCK_FRAMES);
+        assert!(
+            handle
+                .commands
+                .push(Command::SetDucking(DuckingSettings {
+                    enabled: false,
+                    depth_db: -12.0,
+                    attack_ms: 100,
+                    release_ms: 200,
+                }))
+                .is_ok()
+        );
+        cue(
+            &mut handle,
+            track(1, &music),
+            FrameTransition::back_to_back(),
+        );
+        assert!(
+            handle
+                .commands
+                .push(Command::PlayFx(track(2, &silent_jingle)))
+                .is_ok()
+        );
+
+        let output = render(&mut mixer, total_frames, BLOCK_FRAMES);
+        assert_matches(&output, &music);
+    }
+}
+
+#[test]
+fn ducking_stopping_fx_early_triggers_release() {
+    let total_frames = 48_000_usize;
+    let attack_ms = 100_u32;
+    let release_ms = 200_u32;
+    let release_frames = (release_ms as usize * SAMPLE_RATE as usize) / 1000;
+
+    let (mut mixer, mut handle) = Mixer::new(BLOCK_FRAMES);
+    assert!(
+        handle
+            .commands
+            .push(Command::SetDucking(DuckingSettings {
+                enabled: true,
+                depth_db: -10.0,
+                attack_ms,
+                release_ms,
+            }))
+            .is_ok()
+    );
+
+    let music: Vec<f32> = vec![1.0; total_frames * CHANNELS];
+    let jingle: Vec<f32> = vec![0.0; total_frames * CHANNELS];
+
+    cue(
+        &mut handle,
+        track(1, &music),
+        FrameTransition::back_to_back(),
+    );
+    assert!(
+        handle
+            .commands
+            .push(Command::PlayFx(track(2, &jingle)))
+            .is_ok()
+    );
+
+    // Render 10,000 frames (past attack): fully ducked.
+    let stop_frame = 10_000_usize;
+    let mut output = render(&mut mixer, stop_frame, BLOCK_FRAMES);
+
+    // Stop FX early!
+    assert!(handle.commands.push(Command::StopFx).is_ok());
+
+    // Render the rest: should ramp up to 1.0 over release_frames.
+    let remaining = render(&mut mixer, total_frames - stop_frame, BLOCK_FRAMES);
+    output.extend_from_slice(&remaining);
+
+    // Check release ramp completed:
+    // StopFx fades out the FX over SHORT_FADE_FRAMES (480 frames = 10 ms),
+    // after which release takes release_frames.
+    let restored_frame = stop_frame + SHORT_FADE_FRAMES as usize + release_frames;
+    let restored_sample = output[restored_frame * CHANNELS];
+    assert!(
+        (restored_sample - 1.0).abs() < 1e-3,
+        "restored to 1.0 after StopFx release: {restored_sample}"
+    );
+}
+
+#[test]
+fn ducking_during_crossfade_between_decks() {
+    let fade_frames = 4_800_usize;
+    let (mut mixer, mut handle) = Mixer::new(BLOCK_FRAMES);
+    assert!(
+        handle
+            .commands
+            .push(Command::SetDucking(DuckingSettings {
+                enabled: true,
+                depth_db: -6.0,
+                attack_ms: 50,
+                release_ms: 100,
+            }))
+            .is_ok()
+    );
+
+    // Deck A tone 440 Hz, Deck B tone 440 Hz so the sum across a linear fade is constant 0.5.
+    let song_a = tone(9_600, 440.0, 0.5);
+    let song_b = tone(9_600, 440.0, 0.5);
+    let silent_fx = vec![0.0; 9_600 * CHANNELS];
+
+    cue(
+        &mut handle,
+        track(1, &song_a),
+        FrameTransition::back_to_back(),
+    );
+    // Start playback
+    render(&mut mixer, 2_400, BLOCK_FRAMES);
+
+    // Cue Deck B with a crossfade
+    let mut track_b = track(2, &song_b);
+    track_b.fade_in = Some(FrameRamp {
+        start: 0,
+        length: fade_frames as u64,
+        curve: FadeCurve::Linear,
+        level: 0.0,
+    });
+    cue(
+        &mut handle,
+        track_b,
+        FrameTransition {
+            next_start: 4_800,
+            fade_out: Some(FrameRamp {
+                start: 4_800,
+                length: fade_frames as u64,
+                curve: FadeCurve::Linear,
+                level: 0.0,
+            }),
+        },
+    );
+
+    // Trigger FX right in the middle of the crossfade
+    assert!(
+        handle
+            .commands
+            .push(Command::PlayFx(track(3, &silent_fx)))
+            .is_ok()
+    );
+
+    let output = render(&mut mixer, 12_000, BLOCK_FRAMES);
+
+    // Verify there are no NaN or infinite values and no discontinuous jumps
+    for window in output.windows(2) {
+        assert!(!window[0].is_nan());
+        let diff = (window[1] - window[0]).abs();
+        assert!(diff < 0.25, "smooth sample transition, no click: {diff}");
+    }
 }

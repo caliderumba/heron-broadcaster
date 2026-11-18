@@ -18,8 +18,8 @@ use lofty::picture::{MimeType, Picture, PictureType};
 use lofty::tag::{Accessor, ItemKey, Tag};
 use serde::{Deserialize, Serialize};
 
-use base64::Engine as _;
 use crate::properties::AudioProperties;
+use base64::Engine as _;
 
 #[derive(Debug, thiserror::Error)]
 pub enum TagError {
@@ -215,16 +215,21 @@ pub fn write(path: &Path, tags: &Tags, cover: Cover<'_>) -> Result<(), TagError>
 
     let cover_bytes: Option<Vec<u8>> = match &tags.cover {
         Some(b64) => Some(
-            base64::engine::general_purpose::STANDARD.decode(b64).map_err(|error| {
-                TagError::Write(std::io::Error::new(
-                    std::io::ErrorKind::InvalidData,
-                    format!("invalid cover base64: {error}"),
-                ).into())
-            })?,
+            base64::engine::general_purpose::STANDARD
+                .decode(b64)
+                .map_err(|error| {
+                    TagError::Write(
+                        std::io::Error::new(
+                            std::io::ErrorKind::InvalidData,
+                            format!("invalid cover base64: {error}"),
+                        )
+                        .into(),
+                    )
+                })?,
         ),
         None => None,
     };
-    let effective_cover = cover_bytes.as_deref().map_or(cover, |b| Cover::Embed(b));
+    let effective_cover = cover_bytes.as_deref().map_or(cover, Cover::Embed);
 
     match effective_cover {
         Cover::Keep => {}
@@ -344,7 +349,7 @@ pub fn write_fields(path: &Path, values: &FieldValues) -> Result<(), TagError> {
                 }
             }
             TagField::Mood => set_text(tag, ItemKey::Mood, value),
-            TagField::Cover => {},
+            TagField::Cover => {}
         }
     }
     Ok(tagged.save_to_path(path, WriteOptions::default())?)

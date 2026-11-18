@@ -70,6 +70,8 @@ struct TrackRow {
     over_intro: bool,
     /// Where the intro ends, from the import (`track_markers`).
     intro_ms: Option<u32>,
+    /// Whether this track ducks music when played on FX (default true).
+    ducks_music: bool,
 }
 
 const TRACK_COLUMNS: &str = "
@@ -88,7 +90,10 @@ const TRACK_COLUMNS: &str = "
             JOIN categories c ON c.id = tc.category_id
             JOIN category_types ct ON ct.id = c.type_id
             WHERE tc.track_id = t.id AND ct.plays_over_intro) AS over_intro,
-    m.intro_ms
+    m.intro_ms,
+    NOT EXISTS (SELECT 1 FROM track_categories tc
+                JOIN categories c ON c.id = tc.category_id
+                WHERE tc.track_id = t.id AND NOT c.ducks_music) AS ducks_music
     FROM tracks t
     LEFT JOIN track_analysis a ON a.track_id = t.id
     LEFT JOIN track_overrides o ON o.track_id = t.id
@@ -182,6 +187,7 @@ impl TrackRow {
             no_metadata: self.no_metadata,
             over_intro: self.over_intro,
             intro_ms: self.intro_ms,
+            ducks_music: Some(self.ducks_music),
         })
     }
 }
@@ -452,6 +458,7 @@ mod tests {
             no_metadata: false,
             over_intro: false,
             intro_ms: None,
+            ducks_music: true,
         }
     }
 

@@ -173,6 +173,7 @@ fn track(library: &Path, name: &str, seconds: f64) -> TrackRequest {
         no_metadata: false,
         over_intro: false,
         intro_ms: None,
+        ducks_music: true,
     }
 }
 

@@ -53,7 +53,10 @@ pub enum TaskRequest {
     /// `replace_into` pairs are `(staged_file_id, existing_track_id)`: the
     /// staged file replaces the existing track's file in place instead of
     /// creating a new track.
-    StagingImport { file_ids: Vec<u64>, replace_into: Vec<(u64, u64)> },
+    StagingImport {
+        file_ids: Vec<u64>,
+        replace_into: Vec<(u64, u64)>,
+    },
     /// Moves tracks to the trash, as one batch (undone to restore them).
     Delete { track_ids: Vec<u64> },
     /// Purges the whole trash now.
@@ -65,6 +68,12 @@ pub enum TaskRequest {
     PreviewMedley {
         medley_id: u64,
         parts: Vec<crate::medley::Part>,
+    },
+    /// Converts, tags and files an uploaded voice link take into the library.
+    VoiceLinkImport {
+        station_id: u64,
+        source_path: String,
+        operator: String,
     },
 }
 
@@ -84,6 +93,7 @@ impl TaskRequest {
             Self::EmptyTrash => "empty_trash",
             Self::RenderMedley { .. } => "render_medley",
             Self::PreviewMedley { .. } => "preview_medley",
+            Self::VoiceLinkImport { .. } => "voice_link_import",
         }
     }
 }
@@ -372,6 +382,16 @@ pub struct RelationsReport {
     pub suggestions: u64,
     /// Lookups that failed (tried again next time).
     pub failed: u64,
+}
+
+/// What importing a voice link recording produced.
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+pub struct VoiceLinkReport {
+    pub track_id: u64,
+    pub path: String,
+    pub title: String,
+    pub duration_ms: u32,
 }
 
 #[cfg(test)]

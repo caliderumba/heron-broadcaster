@@ -24,6 +24,7 @@ pub mod review;
 pub mod staging;
 pub mod tasks;
 pub mod trash;
+pub mod voice_link;
 
 /// Where files go in the library, shared with `heron-api`, which checks the settings.
 pub use heron_library::layout;

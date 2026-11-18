@@ -137,7 +137,11 @@ pub fn apply_overrides(read: &mut FileTags, overrides: &FieldValues) {
             TagField::Genre => read.genre.clone_from(value),
             TagField::Track => tags.track = number(),
             TagField::Disc => tags.disc = number(),
-            TagField::Isrc | TagField::RecordLabel | TagField::Bpm | TagField::Mood | TagField::Cover => {}
+            TagField::Isrc
+            | TagField::RecordLabel
+            | TagField::Bpm
+            | TagField::Mood
+            | TagField::Cover => {}
         }
     }
 }

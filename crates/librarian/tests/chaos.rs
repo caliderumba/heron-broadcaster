@@ -281,7 +281,14 @@ async fn import_with_crashes(
                 break;
             }
             let crash_at = format!("{step}:{n}");
-            let task = ask(pool, &TaskRequest::StagingImport { file_ids: ready, replace_into: vec![] }).await;
+            let task = ask(
+                pool,
+                &TaskRequest::StagingImport {
+                    file_ids: ready,
+                    replace_into: vec![],
+                },
+            )
+            .await;
             run_task(setup, pool, task, Some(&crash_at)).await;
             assert_nothing_lost(
                 roots,
@@ -308,7 +315,14 @@ async fn import_with_crashes(
         }
         round += 1;
         assert!(round < 20, "the import never finished");
-        let task = ask(pool, &TaskRequest::StagingImport { file_ids: ready, replace_into: vec![] }).await;
+        let task = ask(
+            pool,
+            &TaskRequest::StagingImport {
+                file_ids: ready,
+                replace_into: vec![],
+            },
+        )
+        .await;
         if round <= 3 {
             let mut child = setup.spawn(&[], None);
             tokio::time::sleep(Duration::from_millis(300 + 400 * round)).await;

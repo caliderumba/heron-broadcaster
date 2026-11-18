@@ -224,6 +224,7 @@ fn track_request(path: &str, file: &FallbackFile) -> TrackRequest {
         no_metadata: false,
         over_intro: false,
         intro_ms: None,
+        ducks_music: true,
     }
 }
 

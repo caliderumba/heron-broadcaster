@@ -3335,6 +3335,28 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/stations/{station_id}/voice-links": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Uploads an audio take of a recorded voice link (WebM, Ogg, WAV, etc.).
+         *     heron-librarian converts it with FFmpeg, tags it (title with date/time,
+         *     artist = operator), and files it into the station's "Voice track" category.
+         *     Operators and admins.
+         */
+        post: operations["upload_voice_link_on_station"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/stations/{station_id}/webhook-deliveries/{id}/retry": {
         parameters: {
             query?: never;
@@ -3911,6 +3933,28 @@ export interface paths {
          *     password. Admins only.
          */
         patch: operations["update_user"];
+        trace?: never;
+    };
+    "/api/v1/voice-links": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Uploads an audio take of a recorded voice link (WebM, Ogg, WAV, etc.).
+         *     heron-librarian converts it with FFmpeg, tags it (title with date/time,
+         *     artist = operator), and files it into the station's "Voice track" category.
+         *     Operators and admins.
+         */
+        post: operations["upload_voice_link"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/v1/webhook-deliveries/{id}/retry": {
@@ -4782,6 +4826,8 @@ export interface components {
         Category: {
             /** @description `#rrggbb`. */
             color?: string | null;
+            /** @description Whether playing tracks in this category ducks the music on main decks (default true). */
+            ducks_music: boolean;
             /**
              * @description Liners, power intros, voice tracks: the FX player's picker opens on
              *     these categories. Clocks still call them like any other.
@@ -4825,6 +4871,8 @@ export interface components {
         CategoryInput: {
             /** @description `#rrggbb`, or none. */
             color?: string | null;
+            /** @description Whether playing tracks in this category ducks the music on main decks (default true). */
+            ducks_music?: boolean;
             /** @description Not for the FX player by default. */
             fx_player?: boolean;
             name: string;
@@ -5273,6 +5321,32 @@ export interface components {
             enabled: boolean;
             /** @default false */
             link: boolean;
+        };
+        /**
+         * @description Ducking settings: smoothly lowers music playing on Decks A and B while an
+         *     effect, voice link or jingle plays on the FX player.
+         */
+        DuckingSettings: {
+            /**
+             * Format: int32
+             * @description Time in ms to ramp down the music (50 to 1,000 ms, default 150 ms).
+             * @default 150
+             */
+            attack_ms: number;
+            /**
+             * Format: double
+             * @description Gain reduction applied to music in dB (0 to -24 dB, default -9 dB).
+             * @default -9
+             */
+            depth_db: number;
+            /** @default true */
+            enabled: boolean;
+            /**
+             * Format: int32
+             * @description Time in ms to restore the music after FX ends (100 to 5,000 ms, default 600 ms).
+             * @default 600
+             */
+            release_ms: number;
         };
         EarlierKey: {
             recipient: string;
@@ -5763,6 +5837,8 @@ export interface components {
         ImportCategoryChoice: {
             /** @description Its tracks are disabled: rotation never picks them. */
             disable_tracks?: boolean;
+            /** @description Whether playing tracks in this category ducks the music on main decks (default true). */
+            ducks_music?: boolean;
             /** @description Offered by the FX player (set when the category is created). */
             fx_player?: boolean;
             /**
@@ -6266,6 +6342,7 @@ export interface components {
             /** Format: int64 */
             started_at_unix_ms?: number | null;
             status: components["schemas"]["TaskStatus"];
+            voice_link?: components["schemas"]["VoiceLinkReport"] | null;
         };
         /** @enum {string} */
         LinerMode: "between" | "over";
@@ -7015,6 +7092,15 @@ export interface components {
              *     }
              */
             crossfade: components["schemas"]["CrossfadeSettings"];
+            /**
+             * @default {
+             *       "attack_ms": 150,
+             *       "depth_db": -9,
+             *       "enabled": true,
+             *       "release_ms": 600
+             *     }
+             */
+            ducking: components["schemas"]["DuckingSettings"];
             /**
              * @default {
              *       "enabled": true,
@@ -8283,6 +8369,13 @@ export interface components {
             /** Format: int64 */
             medley_id: number;
             parts: components["schemas"]["Part"][];
+        } | {
+            /** @enum {string} */
+            kind: "voice_link_import";
+            operator: string;
+            source_path: string;
+            /** Format: int64 */
+            station_id: number;
         };
         /** @enum {string} */
         TaskStatus: "pending" | "running" | "done" | "failed";
@@ -8847,6 +8940,15 @@ export interface components {
             station_id: components["schemas"]["u64"];
             /** Format: int32 */
             window_min: number;
+        };
+        /** @description What importing a voice link recording produced. */
+        VoiceLinkReport: {
+            /** Format: int32 */
+            duration_ms: number;
+            path: string;
+            title: string;
+            /** Format: int64 */
+            track_id: number;
         };
         Waveform: {
             /**
@@ -16857,6 +16959,40 @@ export interface operations {
             };
         };
     };
+    upload_voice_link_on_station: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The station's ID */
+                station_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/octet-stream": number[];
+            };
+        };
+        responses: {
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LibraryTask"];
+                };
+            };
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+        };
+    };
     retry_delivery_on_station: {
         parameters: {
             query?: never;
@@ -18049,6 +18185,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["User"];
+                };
+            };
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+        };
+    };
+    upload_voice_link: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/octet-stream": number[];
+            };
+        };
+        responses: {
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LibraryTask"];
                 };
             };
             "4XX": {

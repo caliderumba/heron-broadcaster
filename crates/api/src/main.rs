@@ -45,6 +45,7 @@ mod sync;
 mod system;
 mod tracks;
 mod users;
+mod voice_links;
 mod webhooks;
 
 use std::io::{BufRead, IsTerminal, Write};
