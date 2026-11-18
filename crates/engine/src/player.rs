@@ -531,6 +531,14 @@ impl Player {
         self.send(Command::StopFx)
     }
 
+    pub fn start_live(&mut self, source: Box<dyn AudioSource>) -> Result<(), PlayerError> {
+        self.send(Command::StartLive(source))
+    }
+
+    pub fn stop_live(&mut self) -> Result<(), PlayerError> {
+        self.send(Command::StopLive)
+    }
+
     /// Holds the mixer silent at once, until [`Self::unhold`]: an engine
     /// waiting to take over. Tracks are cued but do not start.
     pub fn hold(&mut self) -> Result<(), PlayerError> {

@@ -237,6 +237,10 @@ pub enum Command {
     StopFx,
     /// Sets ducking parameters for music decks under FX playback.
     SetDucking(DuckingSettings),
+    /// Starts live audio input (e.g. from a live DJ), ducking automation smoothly.
+    StartLive(Box<dyn AudioSource>),
+    /// Stops live audio input, smoothly returning to automation.
+    StopLive,
     /// New settings for a deck EQ: its filter gains, solved from the
     /// sliders by the control thread ([`heron_dsp::eq::filter_gains`]). They
     /// glide in, or with `glide: false` apply at once with the filters at
@@ -435,6 +439,8 @@ pub struct MixerStatus {
     /// air, 0 for none.
     pub overlay: AtomicU64,
     pub decks: [DeckStatus; 3],
+    /// Whether a live DJ source is currently mixed into the master bus.
+    pub live_active: AtomicBool,
     /// The master bus, after the AGC chain.
     pub master: MeterStatus,
     pub agc: AgcStatus,
@@ -537,9 +543,19 @@ impl BlockMeter {
     }
 }
 
+struct LiveVoice {
+    source: Box<dyn AudioSource>,
+    gain: f32,
+    fade_in_remaining: u64,
+    fade_in_frames: u64,
+    fade_out_remaining: Option<u64>,
+    fade_out_frames: u64,
+}
+
 pub struct Mixer {
     /// Deck A, Deck B, FX.
     voices: [Option<Voice>; 3],
+    live: Option<LiveVoice>,
     /// Slot of the track on air (0 or 1).
     main: Option<usize>,
     /// Slot of the last track started on a deck: decks alternate.
@@ -583,6 +599,7 @@ impl Mixer {
         let status = Arc::new(MixerStatus::default());
         let mixer = Self {
             voices: [None, None, None],
+            live: None,
             main: None,
             last_main: 1,
             cued: None,
@@ -673,6 +690,34 @@ impl Mixer {
                         duck_target,
                         duck_step,
                     );
+                }
+                if let Some(live) = &mut self.live {
+                    let range = offset * CHANNELS..(offset + segment) * CHANNELS;
+                    let scratch = &mut self.scratch[..segment * CHANNELS];
+                    let read = live.source.read(scratch);
+                    for frame in scratch[..read * CHANNELS].as_chunks_mut::<CHANNELS>().0 {
+                        let mut gain = live.gain;
+                        if live.fade_in_remaining > 0 {
+                            let progress =
+                                1.0 - (live.fade_in_remaining as f32 / live.fade_in_frames as f32);
+                            gain *= progress;
+                            live.fade_in_remaining = live.fade_in_remaining.saturating_sub(1);
+                        }
+                        if let Some(ref mut rem) = live.fade_out_remaining {
+                            let progress = *rem as f32 / live.fade_out_frames as f32;
+                            gain *= progress;
+                            *rem = rem.saturating_sub(1);
+                        }
+                        frame[0] *= gain;
+                        frame[1] *= gain;
+                    }
+                    for (src, dst) in scratch[..read * CHANNELS].iter().zip(&mut out[range]) {
+                        *dst += *src;
+                    }
+                    if live.source.is_finished() || live.fade_out_remaining == Some(0) {
+                        self.live = None;
+                        self.status.live_active.store(false, Ordering::Relaxed);
+                    }
                 }
                 self.advance_duck(segment, duck_target, duck_step);
                 offset += segment;
@@ -776,6 +821,23 @@ impl Mixer {
                 }
                 Command::SetDucking(ducking) => {
                     self.ducking = ducking;
+                }
+                Command::StartLive(source) => {
+                    let fade_frames = ms_to_frames(250).max(1);
+                    self.live = Some(LiveVoice {
+                        source,
+                        gain: 1.0,
+                        fade_in_remaining: fade_frames,
+                        fade_in_frames: fade_frames,
+                        fade_out_remaining: None,
+                        fade_out_frames: fade_frames,
+                    });
+                    self.status.live_active.store(true, Ordering::Relaxed);
+                }
+                Command::StopLive => {
+                    if let Some(live) = &mut self.live {
+                        live.fade_out_remaining = Some(live.fade_out_frames);
+                    }
                 }
                 Command::SetEq {
                     eq,
@@ -1027,7 +1089,9 @@ impl Mixer {
     }
 
     fn duck_target(&self) -> f32 {
-        if self.ducking.enabled && self.fx_ducks() && self.ducking.depth_db < 0.0 {
+        if self.live.is_some() {
+            0.0
+        } else if self.ducking.enabled && self.fx_ducks() && self.ducking.depth_db < 0.0 {
             10.0f32.powf((self.ducking.depth_db as f32) / 20.0)
         } else {
             1.0

@@ -474,6 +474,19 @@ impl Engine {
         self.closing.store(true, Ordering::Relaxed);
     }
 
+    /// Feeds live audio into the mixer (e.g. from a live DJ), ducking automation smoothly.
+    pub fn start_live(
+        &self,
+        source: Box<dyn crate::mixer::AudioSource>,
+    ) -> Result<(), crate::player::PlayerError> {
+        self.player().start_live(source)
+    }
+
+    /// Stops live audio, smoothly returning to automation.
+    pub fn stop_live(&self) -> Result<(), crate::player::PlayerError> {
+        self.player().stop_live()
+    }
+
     /// Problems listed in `/healthz` without making the engine unhealthy.
     pub fn warnings(&self) -> Vec<String> {
         let mut warnings = Vec::new();

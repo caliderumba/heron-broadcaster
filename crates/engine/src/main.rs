@@ -74,6 +74,10 @@ struct Cli {
     #[arg(long, env = "HERON_RELAY_SOCKET", global = true)]
     relay_socket: Option<PathBuf>,
 
+    /// Address of the live DJ Icecast source server.
+    #[arg(long, env = "HERON_LIVE_DJ_ADDR")]
+    live_dj_addr: Option<SocketAddr>,
+
     /// Directory where the engine persists its state (configuration, queue) between restarts.
     #[arg(long, env = "HERON_STATE_DIR", default_value = "/var/lib/heron/engine")]
     state_dir: PathBuf,
@@ -203,6 +207,20 @@ async fn run(cli: Cli) -> anyhow::Result<()> {
     };
 
     let about = about_report(&cli).await;
+    if let Some(addr) = cli.live_dj_addr {
+        let (_live_shutdown_tx, live_shutdown_rx) = tokio::sync::broadcast::channel(1);
+        let live_server = heron_engine::live::LiveDjServer::new(
+            addr,
+            std::env::var("HERON_LIVE_DJ_PASSWORD").unwrap_or_else(|_| "hackme".to_owned()),
+            "/live".to_owned(),
+            std::sync::Arc::clone(&engine),
+        );
+        tokio::spawn(async move {
+            if let Err(e) = live_server.run(live_shutdown_rx).await {
+                tracing::warn!(error = %e, "live DJ server exited");
+            }
+        });
+    }
     let grpc = tonic::transport::Server::builder()
         .add_service(EngineService::server_with_about(
             std::sync::Arc::clone(&engine),
@@ -265,6 +283,7 @@ async fn about_report(cli: &Cli) -> String {
         ConfigItem::flag("HERON_MONITOR", cli.monitor),
         ConfigItem::flag("HERON_FFMPEG", external),
         ConfigItem::flag("HERON_RELAY_SOCKET", cli.relay_socket.is_some()),
+        ConfigItem::flag("HERON_LIVE_DJ", cli.live_dj_addr.is_some()),
     ]);
     let report = AboutReport {
         process: ProcessInfo::read(std::time::SystemTime::now()),
