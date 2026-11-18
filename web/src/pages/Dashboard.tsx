@@ -9,6 +9,7 @@ import { type DeckState, type OutputStatus, type QueueEntry, api, done, unwrap }
 import { StereoMeter, LineMeter } from "../components/Meter";
 import { QueueList } from "../components/QueueList";
 import { TrackSearch } from "../components/TrackSearch";
+import { CartWall } from "../components/CartWall";
 import { Card, ConfirmButton, Empty, Icon, Modal, PageHead } from "../components/ui";
 import { CategoryChips, type CategoryRef, useTrackCategories } from "../components/TrackCategories";
 import { type PlainKey, number, rich, t } from "../i18n";
@@ -135,6 +136,8 @@ export function Dashboard() {
               />
             ))}
           </div>
+
+          <CartWall fx={fx} paused={player?.paused ?? false} />
 
           <Card
             title={t("dashboard.upNext")}
