@@ -36,18 +36,18 @@ type Kind = Schemas["OutputKind"];
 const ENCODERS: { value: Encoder; label: () => string; available: boolean }[] = [
   { value: "mp3", label: () => "MP3 (LAME)", available: true },
   { value: "aac", label: () => "AAC-LC", available: true },
-  { value: "opus", label: () => "Opus", available: false },
-  { value: "vorbis", label: () => "Vorbis", available: false },
+  { value: "opus", label: () => "Opus", available: true },
+  { value: "vorbis", label: () => "Vorbis", available: true },
   { value: "external_ffmpeg", label: () => t("outputs.externalFfmpeg"), available: true },
 ];
 
 const KINDS: { value: Kind; label: () => string; available: boolean }[] = [
   { value: "icecast", label: () => "Icecast", available: true },
-  { value: "shoutcast_v1", label: () => "Shoutcast v1", available: false },
-  { value: "shoutcast_v2", label: () => "Shoutcast v2", available: false },
-  { value: "hls", label: () => "HLS", available: false },
-  { value: "file", label: () => t("outputs.kind.file"), available: false },
-  { value: "pipe", label: () => t("outputs.kind.pipe"), available: false },
+  { value: "shoutcast_v1", label: () => "Shoutcast v1", available: true },
+  { value: "shoutcast_v2", label: () => "Shoutcast v2", available: true },
+  { value: "hls", label: () => "HLS", available: true },
+  { value: "file", label: () => t("outputs.kind.file"), available: true },
+  { value: "pipe", label: () => t("outputs.kind.pipe"), available: true },
 ];
 
 const MP3_BITRATES = [32, 40, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320];
@@ -56,6 +56,7 @@ const FFMPEG_BITRATES = [24, 32, 40, 48, 56, 64, 80, 96, 112, 128, 160, 192, 256
 const FFMPEG_CODECS = ["libfdk_aac", "aac", "libopus", "libmp3lame", "libvorbis"];
 const AAC_PROFILES = ["aac_low", "aac_he", "aac_he_v2"];
 const SAMPLE_RATES = [22_050, 32_000, 44_100, 48_000];
+const OPUS_SAMPLE_RATES = [8_000, 12_000, 16_000, 24_000, 48_000];
 
 /** An output's listeners at the last minute, and whether sessions are counted too. */
 function ListenerCount({ now, sessions }: Readonly<{ now: Schemas["OutputListeners"] | undefined; sessions: boolean }>) {
@@ -167,8 +168,14 @@ export function Outputs() {
                       </td>
                       <td className="hide-narrow mono small">
                         {typeof config.host === "string"
-                          ? `${config.host}:${configText(config.port, "8000")}${configText(config.mount, "")}`
-                          : "–"}
+                          ? `${config.host}:${configText(config.port, "8000")}${configText(config.mount, "")}${output.kind === "shoutcast_v2" ? ` #${configText(config.stream_id, "1")}` : ""}`
+                          : typeof config.path === "string"
+                            ? config.path
+                            : typeof config.command === "string"
+                              ? `${config.command}${Array.isArray(config.args) && config.args.length > 0 ? ` ${config.args.join(" ")}` : ""}`
+                              : typeof config.directory === "string"
+                                ? `${config.directory}/${configText(config.playlist_name, "live.m3u8")}`
+                                : "–"}
                       </td>
                       <td className="hide-narrow">{profileName(output.encoder_profile_id)}</td>
                       <td>
@@ -388,6 +395,47 @@ function OutputDialog({
             body[key] = value;
           }
         }
+      } else if (kind === "shoutcast_v1" || kind === "shoutcast_v2") {
+        body = {
+          host: String(config.host ?? "").trim(),
+          port: Number(config.port ?? 8000),
+        };
+        if (kind === "shoutcast_v2") {
+          body.stream_id = Number(config.stream_id ?? 1);
+        }
+        if (config.password) {
+          body.password = config.password;
+        }
+        if (config.name) body.name = config.name;
+        if (config.genre) body.genre = config.genre;
+        if (config.url) body.url = config.url;
+        if (config.public !== undefined) body.public = Boolean(config.public);
+        if (config.public_url) body.public_url = config.public_url;
+      } else if (kind === "hls") {
+        body = {
+          directory: String(config.directory ?? "").trim(),
+          segment_duration_seconds: Number(config.segment_duration_seconds ?? 4),
+          playlist_window: Number(config.playlist_window ?? 5),
+          playlist_name: String(config.playlist_name ?? "live.m3u8").trim() || "live.m3u8",
+        };
+        if (config.public_url) {
+          body.public_url = String(config.public_url).trim();
+        }
+      } else if (kind === "file") {
+        body = {
+          path: String(config.path ?? "").trim(),
+        };
+        const rot = Number(config.rotation_interval_seconds ?? 0);
+        if (rot > 0) {
+          body.rotation_interval_seconds = rot;
+        }
+      } else if (kind === "pipe") {
+        const rawArgs = typeof config.args === "string" ? config.args : Array.isArray(config.args) ? config.args.join(" ") : "";
+        const args = rawArgs.trim() ? rawArgs.trim().split(/\s+/) : [];
+        body = {
+          command: String(config.command ?? "").trim(),
+          args,
+        };
       } else {
         body = JSON.parse(json) as Record<string, unknown>;
       }
@@ -413,7 +461,7 @@ function OutputDialog({
 
   const submit = (event: FormEvent) => {
     event.preventDefault();
-    if (kind !== "icecast") {
+    if (!["icecast", "shoutcast_v1", "shoutcast_v2", "hls", "file", "pipe"].includes(kind)) {
       try {
         JSON.parse(json);
         setJsonError(null);
@@ -558,7 +606,114 @@ function OutputDialog({
               </label>
             )}
           </fieldset>
-        ) : (
+        ) : null}
+        {(kind === "shoutcast_v1" || kind === "shoutcast_v2") && (
+          <fieldset>
+            <legend>{t("outputs.shoutcastServer")}</legend>
+            <div className="form-grid">
+              <Field label={t("outputs.host")}>
+                <input className="input" value={text(config.host)} onChange={(e) => set("host", e.target.value)} required />
+              </Field>
+              <Field label={t("outputs.port")}>
+                <NumberInput value={Number(config.port ?? 8000)} min={1} max={65535} step={1} onChange={(v) => set("port", v)} />
+              </Field>
+              {kind === "shoutcast_v2" && (
+                <Field label={t("outputs.streamId")}>
+                  <NumberInput value={Number(config.stream_id ?? 1)} min={1} max={65535} step={1} onChange={(v) => set("stream_id", v)} />
+                </Field>
+              )}
+              <Field label={t("login.password")} hint={passwordSet ? t("outputs.keepPassword") : undefined}>
+                <input
+                  className="input"
+                  type="password"
+                  autoComplete="new-password"
+                  value={text(config.password)}
+                  placeholder={passwordSet ? "••••••••" : ""}
+                  onChange={(e) => set("password", e.target.value)}
+                  required={!passwordSet}
+                />
+              </Field>
+              <Field label={t("outputs.publicUrl")} hint={t("outputs.publicUrlHint")}>
+                <input
+                  className="input"
+                  type="url"
+                  value={text(config.public_url)}
+                  placeholder={`http://${text(config.host) || "host"}:${String(config.port ?? 8000)}`}
+                  onChange={(e) => set("public_url", e.target.value)}
+                />
+              </Field>
+            </div>
+            <div className="form-grid" style={{ marginTop: "0.9rem" }}>
+              <Field label={t("outputs.stationName")}>
+                <input className="input" value={text(config.name)} onChange={(e) => set("name", e.target.value)} />
+              </Field>
+              <Field label={t("outputs.genre")}>
+                <input className="input" value={text(config.genre)} onChange={(e) => set("genre", e.target.value)} />
+              </Field>
+              <Field label={t("outputs.website")}>
+                <input className="input" type="url" value={text(config.url)} onChange={(e) => set("url", e.target.value)} />
+              </Field>
+            </div>
+            <label className="check" style={{ marginTop: "0.75rem" }}>
+              <input type="checkbox" checked={config.public === true} onChange={(e) => set("public", e.target.checked)} />
+              {t("outputs.public")}
+            </label>
+          </fieldset>
+        )}
+        {kind === "hls" && (
+          <fieldset>
+            <legend>{t("outputs.hlsSettings")}</legend>
+            <div className="form-grid">
+              <Field label={t("outputs.directory")}>
+                <input className="input" value={text(config.directory)} onChange={(e) => set("directory", e.target.value)} required />
+              </Field>
+              <Field label={t("outputs.playlistName")}>
+                <input className="input" value={text(config.playlist_name) || "live.m3u8"} onChange={(e) => set("playlist_name", e.target.value)} required />
+              </Field>
+              <Field label={t("outputs.segmentDuration")}>
+                <NumberInput value={Number(config.segment_duration_seconds ?? 4)} min={1} max={60} step={1} onChange={(v) => set("segment_duration_seconds", v)} />
+              </Field>
+              <Field label={t("outputs.playlistWindow")}>
+                <NumberInput value={Number(config.playlist_window ?? 5)} min={1} max={100} step={1} onChange={(v) => set("playlist_window", v)} />
+              </Field>
+              <Field label={t("outputs.publicUrl")} hint={t("outputs.publicUrlHint")}>
+                <input
+                  className="input"
+                  type="url"
+                  value={text(config.public_url)}
+                  onChange={(e) => set("public_url", e.target.value)}
+                />
+              </Field>
+            </div>
+          </fieldset>
+        )}
+        {kind === "file" && (
+          <fieldset>
+            <legend>{t("outputs.fileSettings")}</legend>
+            <div className="form-grid">
+              <Field label={t("outputs.filePath")} hint={t("outputs.filePathHint")}>
+                <input className="input mono" value={text(config.path)} onChange={(e) => set("path", e.target.value)} required />
+              </Field>
+              <Field label={t("outputs.rotationInterval")} hint={t("outputs.rotationIntervalHint")}>
+                <NumberInput value={Number(config.rotation_interval_seconds ?? 0)} min={0} step={60} onChange={(v) => set("rotation_interval_seconds", v)} />
+              </Field>
+            </div>
+          </fieldset>
+        )}
+        {kind === "pipe" && (
+          <fieldset>
+            <legend>{t("outputs.pipeSettings")}</legend>
+            <div className="form-grid">
+              <Field label={t("outputs.command")}>
+                <input className="input mono" value={text(config.command)} onChange={(e) => set("command", e.target.value)} required />
+              </Field>
+              <Field label={t("outputs.commandArgs")} hint={t("outputs.commandArgsHint")}>
+                <input className="input mono" value={text(typeof config.args === "string" ? config.args : Array.isArray(config.args) ? config.args.join(" ") : "")} onChange={(e) => set("args", e.target.value)} />
+              </Field>
+            </div>
+          </fieldset>
+        )}
+        {!["icecast", "shoutcast_v1", "shoutcast_v2", "hls", "file", "pipe"].includes(kind) && (
           <Field label={t("outputs.json")} hint={t("outputs.jsonHint")}>
             <textarea className="input" value={json} onChange={(e) => setJson(e.target.value)} rows={8} />
           </Field>
@@ -584,6 +739,11 @@ function ProfileDialog({ profile, onClose }: Readonly<{ profile: EncoderProfileV
   const [aacProfile, setAacProfile] = useState(text(options.profile) || (profile ? "" : "aac_he_v2"));
   const [ffmpegVbr, setFfmpegVbr] = useState(typeof options.vbr === "number" ? options.vbr : 0);
   const [format, setFormat] = useState(text(options.format));
+  const [opusApplication, setOpusApplication] = useState(text(options.application) || "audio");
+  const [opusVbr, setOpusVbr] = useState(typeof options.vbr === "boolean" ? options.vbr : true);
+  const [opusComplexity, setOpusComplexity] = useState(Number(options.complexity ?? 10));
+  const [vorbisMode, setVorbisMode] = useState(text(options.mode) || "abr");
+  const [vorbisQuality, setVorbisQuality] = useState(Number(options.quality ?? 0.4));
   const external = encoder === "external_ffmpeg";
   const chooseEncoder = (next: Encoder) => {
     setEncoder(next);
@@ -592,6 +752,14 @@ function ProfileDialog({ profile, onClose }: Readonly<{ profile: EncoderProfileV
     }
     if (next === "aac" && !profile) {
       setBitrate(96);
+      setSampleRate(48_000);
+    }
+    if (next === "opus" && !profile) {
+      setBitrate(128);
+      setSampleRate(48_000);
+    }
+    if (next === "vorbis" && !profile) {
+      setBitrate(128);
       setSampleRate(48_000);
     }
   };
@@ -608,12 +776,15 @@ function ProfileDialog({ profile, onClose }: Readonly<{ profile: EncoderProfileV
     }
     return chosen;
   };
-  const bitrates = external || encoder === "aac" ? FFMPEG_BITRATES : MP3_BITRATES;
-  const variableBitrate = external ? ffmpegVbr > 0 : mode === "vbr";
+  const bitrates = external || encoder === "aac" || encoder === "opus" || encoder === "vorbis" ? FFMPEG_BITRATES : MP3_BITRATES;
+  const rates = encoder === "opus" ? OPUS_SAMPLE_RATES : SAMPLE_RATES;
+  const variableBitrate = external ? ffmpegVbr > 0 : encoder === "opus" ? opusVbr : encoder === "vorbis" ? vorbisMode === "vbr" : mode === "vbr";
   const save = useAction(
     () => {
       let chosen: unknown = options;
       if (encoder === "mp3") chosen = mode === "vbr" ? { mode, quality, vbr_quality: vbrQuality } : { mode, quality };
+      else if (encoder === "opus") chosen = { application: opusApplication, vbr: opusVbr, complexity: opusComplexity };
+      else if (encoder === "vorbis") chosen = { mode: vorbisMode, quality: vorbisQuality };
       else if (external) chosen = ffmpegOptions();
       const body = {
         name,
@@ -679,7 +850,7 @@ function ProfileDialog({ profile, onClose }: Readonly<{ profile: EncoderProfileV
           {row(
             t("outputs.sampleRate"),
             <select className="input" value={sampleRate} onChange={(e) => setSampleRate(Number(e.target.value))}>
-              {SAMPLE_RATES.map((rate) => (
+              {rates.map((rate) => (
                 <option key={rate} value={rate}>
                   {t("outputs.khz", {
                     rate: number(rate / 1000, { minimumFractionDigits: rate % 1000 ? 2 : 0, maximumFractionDigits: 2 }),
@@ -781,6 +952,48 @@ function ProfileDialog({ profile, onClose }: Readonly<{ profile: EncoderProfileV
                   <NumberInput value={vbrQuality} min={0} max={9} step={1} onChange={setVbrQuality} />,
                   t("outputs.vbrQualityHint"),
                 )}
+            </div>
+          </fieldset>
+        )}
+        {encoder === "opus" && (
+          <fieldset>
+            <legend>Opus</legend>
+            <div className="form-grid">
+              {row(
+                t("outputs.opusApplication"),
+                <select className="input" value={opusApplication} onChange={(e) => setOpusApplication(e.target.value)}>
+                  <option value="audio">{t("outputs.opusApplication.audio")}</option>
+                  <option value="voip">{t("outputs.opusApplication.voip")}</option>
+                  <option value="low_delay">{t("outputs.opusApplication.lowDelay")}</option>
+                </select>,
+              )}
+              {row(
+                t("outputs.opusComplexity"),
+                <NumberInput value={opusComplexity} min={0} max={10} step={1} onChange={setOpusComplexity} />,
+                t("outputs.opusComplexityHint"),
+              )}
+            </div>
+            <label className="check" style={{ marginTop: "0.75rem" }}>
+              <input type="checkbox" checked={opusVbr} onChange={(e) => setOpusVbr(e.target.checked)} />
+              {t("outputs.opusVbr")}
+            </label>
+          </fieldset>
+        )}
+        {encoder === "vorbis" && (
+          <fieldset>
+            <legend>Vorbis</legend>
+            <div className="form-grid">
+              {row(
+                t("outputs.vorbisMode"),
+                <select className="input" value={vorbisMode} onChange={(e) => setVorbisMode(e.target.value)}>
+                  <option value="abr">{t("outputs.vorbisMode.abr")}</option>
+                  <option value="vbr">{t("outputs.vorbisMode.vbr")}</option>
+                </select>,
+              )}
+              {row(
+                t("outputs.vorbisQuality"),
+                <NumberInput value={vorbisQuality} min={-0.1} max={1.0} step={0.1} onChange={setVorbisQuality} />,
+              )}
             </div>
           </fieldset>
         )}
