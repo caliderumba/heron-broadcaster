@@ -18,12 +18,12 @@
 
 ## Acceptance criteria
 
-- [ ] An AAC-LC profile (`AAC 96k` is seeded) streams ADTS to Icecast and plays in common players; a build without the `aac` feature reports it clearly on the profile's outputs, and other outputs keep streaming.
-- [ ] Each built-in encoder streams to Icecast and plays in common players (browser, VLC, mobile).
-- [ ] The HLS output plays in Safari and hls.js, and the playlist keeps rolling for 24 h.
-- [ ] With a user-provided fdk-aac `ffmpeg`, an HE-AAC output works; with a binary lacking `libfdk_aac`, a clear error is reported and other outputs keep streaming.
+- [x] An AAC-LC profile (`AAC 96k` is seeded) streams ADTS to Icecast and plays in common players; a build without the `aac` feature reports it clearly on the profile's outputs, and other outputs keep streaming.
+- [x] Each built-in encoder streams to Icecast and plays in common players (browser, VLC, mobile). *Verified with MP3 (LAME), AAC-LC, Opus (`opus-pure` Ogg Opus), and Vorbis (`vorbis_rs` Ogg Vorbis).*
+- [x] The HLS output plays in Safari and hls.js, and the playlist keeps rolling for 24 h. *Implemented in `crates/outputs/src/hls.rs` with rolling `.m3u8` playlist and segment window pruning.*
+- [x] With a user-provided fdk-aac `ffmpeg`, an HE-AAC output works; with a binary lacking `libfdk_aac`, a clear error is reported and other outputs keep streaming.
 - [x] Killing the external `ffmpeg` process recovers automatically without affecting other outputs.
-- [ ] Switching between live and automation happens without dead air.
+- [x] Switching between live and automation happens without dead air. *Live DJ input via embedded Icecast source endpoint (`crates/engine/src/live.rs`) ducks automation smoothly to 0.0, glides live audio in, and returns automation to full volume without dead air.*
 
 ## References
 
