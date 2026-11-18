@@ -327,7 +327,7 @@ export function Buffer() {
   // Files not in this map are imported as new tracks.
   const [replaceInto, setReplaceInto] = useState<Map<number, number>>(new Map());
   // Files selected for the pending import dialog (those with duplicates).
-  const [importPending, setImportPending] = useState<number[]>(null);
+  const [importPending, setImportPending] = useState<number[] | null>(null);
 
   // Files that need no look are selected as they become ready.
   useEffect(() => {
@@ -579,6 +579,20 @@ export function Buffer() {
         tracks={preparable.length}
       />
       <TagsDialog open={dialog === "tags"} onClose={() => setDialog(null)} files={preparable} />
+      {importPending !== null && (
+        <ImportReplaceDialog
+          pending={importPending}
+          files={files}
+          replaceInto={replaceInto}
+          onChange={setReplaceInto}
+          onConfirm={() => {
+            const replace: [number, number][] = [...replaceInto.entries()];
+            importFiles.mutate({ ids: importPending, replace });
+            setImportPending(null);
+          }}
+          onCancel={() => setImportPending(null)}
+        />
+      )}
     </>
   );
 }
@@ -1236,20 +1250,6 @@ function Details({ file, canEdit }: Readonly<{ file: StagedFile; canEdit: boolea
         </div>
       )}
       <TagsDialog open={editing} onClose={() => setEditing(false)} files={[file.id]} current={file.tags ?? file.own_tags} />
-      {importPending !== null && (
-        <ImportReplaceDialog
-          pending={importPending}
-          files={files}
-          replaceInto={replaceInto}
-          onChange={setReplaceInto}
-          onConfirm={() => {
-            const replace: [number, number][] = [...replaceInto.entries()];
-            importFiles.mutate({ ids: importPending, replace });
-            setImportPending(null);
-          }}
-          onCancel={() => setImportPending(null)}
-        />
-      )}
     </div>
   );
 }
@@ -1263,7 +1263,7 @@ function ImportReplaceDialog({
   onCancel,
 }: Readonly<{
   pending: number[];
-  files: { id: number; name: string; duplicate_of_track_id: number | null }[];
+  files: { id: number; name: string; duplicate_of_track_id?: number | null }[];
   replaceInto: Map<number, number>;
   onChange: (map: Map<number, number>) => void;
   onConfirm: () => void;

@@ -1,9 +1,3 @@
-   Compiling heron-outputs v0.3.0 (/home/leonardo/Projects/heron-broadcaster/crates/outputs)
-   Compiling heron-analysis v0.3.0 (/home/leonardo/Projects/heron-broadcaster/crates/analysis)
-   Compiling heron-library v0.3.0 (/home/leonardo/Projects/heron-broadcaster/crates/library)
-   Compiling heron-api v0.3.0 (/home/leonardo/Projects/heron-broadcaster/crates/api)
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 57.10s
-     Running `target/debug/heron-api openapi`
 {
   "openapi": "3.1.0",
   "info": {

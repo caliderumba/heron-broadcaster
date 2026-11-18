@@ -5290,8 +5290,16 @@ export interface components {
         FadeCurve: "linear" | "s_curve" | "logarithmic" | "exponential";
         FileSelection: {
             file_ids: number[];
-            /** Pairs of `(staged_file_id, existing_track_id)`: the staged file replaces the existing track's file in place instead of creating a new track. Only files with `duplicate_of_track_id` set may be replaced. */
-            replace_into: [number, number][];
+            /**
+             * @description Pairs of `(staged_file_id, existing_track_id)`: the staged file
+             *     replaces the existing track's file in place instead of creating a
+             *     new track. Only files with `duplicate_of_track_id` set may be
+             *     replaced.
+             */
+            replace_into?: [
+                number,
+                number
+            ][];
         };
         /** @enum {string} */
         FinalMode: "limiter" | "clipper";
@@ -7739,6 +7747,7 @@ export interface components {
             album_artist?: string | null;
             artist?: string | null;
             compilation: boolean;
+            /** @description Album cover art, as a Base64-encoded image (JPEG, PNG, …). */
             cover?: string | null;
             date?: string | null;
             /** Format: int32 */
@@ -8006,6 +8015,10 @@ export interface components {
             file_ids: number[];
             /** @enum {string} */
             kind: "staging_import";
+            replace_into: [
+                number,
+                number
+            ][];
         } | {
             /** @enum {string} */
             kind: "delete";

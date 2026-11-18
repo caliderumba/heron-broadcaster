@@ -12,7 +12,14 @@ export function useTask(id: number | null) {
   return useQuery({
     queryKey: ["library-task", id],
     enabled: id !== null,
-    queryFn: () => unwrap(api.GET("/api/v1/library/tasks/{id}", { params: { path: { id: id ?? 0 } } })),
+    // openapi-fetch flattens tuples (`[number, number][]` comes back as
+    // `number[][]`) when it maps the response type, so the task it infers
+    // is not quite `LibraryTask`. The value is the same on the wire: cast it
+    // back once here and the rest of the page keeps the precise type.
+    queryFn: async () => {
+      const task = await unwrap(api.GET("/api/v1/library/tasks/{id}", { params: { path: { id: id ?? 0 } } }));
+      return task as unknown as LibraryTask;
+    },
     refetchInterval: (query) => {
       const status = query.state.data?.status;
       return status === "done" || status === "failed" ? false : 1000;
