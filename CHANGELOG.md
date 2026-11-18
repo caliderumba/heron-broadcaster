@@ -4,6 +4,10 @@ What changed in each release of Heron. Before upgrading, read the release's note
 
 ## Unreleased
 
+### Added
+
+- **Cart wall and studio shortcuts** (M18): a wall of pads under the decks on the *On air* page that fires liners, IDs, drops and ads through the FX player. Each station has named pages with up to 12 pads; pads can be recoloured, renamed and reordered. Function keys `F1`–`F12` fire pads, `Shift+F1`–`F12` or `PageUp`/`PageDown` switch pages, `Esc` fades the FX out while the panel has focus, and Web MIDI maps hardware controllers per browser ([Web UI – On air](docs/web.md#cart-wall)).
+
 ### Changed
 
 - **Code quality:** the issues reported by SonarQube Cloud on `main` are fixed in the code (React props, nested ternaries, cognitive complexity, blocking file calls in async code, the web image's user), without suppressing any rule, and new tests bring the new-code coverage above the quality gate's 80%.

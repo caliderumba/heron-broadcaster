@@ -30,6 +30,7 @@ Progress is tracked here: the status column below and the acceptance checklists 
 | M15 | [Encrypted and tested backups](m15-encrypted-backups.md) | M12 | Done ([#51](https://github.com/dehy/heron-broadcaster/pull/51)) |
 | M16 | [Status bar](m16-status-bar.md) | M5, M7b, M13 | Done ([#58](https://github.com/dehy/heron-broadcaster/pull/58)) |
 | M17 | [About page](m17-about-page.md) | M5, M13, M16 | Done ([#62](https://github.com/dehy/heron-broadcaster/pull/62)) |
+| M18 | [Cart wall & studio shortcuts](m18-cart-wall.md) | M4, M5 | In progress (`m18-cart-wall`: code, tests and docs, verified on isolated stack) |
 
 ## Dependency graph
 
@@ -39,7 +40,8 @@ M0 ─► M1 ─┬─► M1b
                   │       └─► M11
                   ├─► M4 ─┬─► M5 ─┬─► M5b
                   │       │       ├─► M5c ─► M5e
-                  │       │       └─► M5d
+                  │       │       ├─► M5d
+                  │       │       └─► M18
                   │       ├─► M6
                   │       ├─► M7
                   │       ├─► M7b

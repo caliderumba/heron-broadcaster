@@ -83,6 +83,15 @@ See [Several stations](stations.md) ([M13](roadmap/m13-several-stations.md)).
 | `categories` | id, name, color, type_id (none: no type), fx_player (the FX player's picker opens on it), separation (JSON: the windows it overrides, `NULL` for none) |
 | `track_categories` | track_id, category_id, weight |
 
+## Cart wall
+
+Pages of pads that fire the FX player ([Cart wall](web.md#cart-wall)). A pad's track is any library track; the categories' `fx_player` flag only decides what the FX picker offers.
+
+| Table | Columns |
+|---|---|
+| `cart_pages` | id, station_id, name, position (among the station's pages) |
+| `carts` | id, page_id, position (0…11, one per function key), track_id, label, color (`#rrggbb`, `NULL` for the pad's default) |
+
 ## Artists
 
 See [Rotation – Artists with several names](rotation.md#artists-with-several-names).

@@ -6,7 +6,7 @@
 
 | Page | What it does | Changes need |
 |---|---|---|
-| **On air** | Decks A and B (track, its categories with their color, progress, remaining time, which is on air, an `EQ` badge while their EQ is on and not flat, linking to the Deck EQ page), master and deck levels, skip, pause and resume, the FX player (play a jingle, liner or voice track over the music: it opens on the categories for the FX player, the last one used first, with the whole library as a last tab), the next tracks (with their categories), outputs and their state and listeners, the engine's state | operator |
+| **On air** | Decks A and B (track, its categories with their color, progress, remaining time, which is on air, an `EQ` badge while their EQ is on and not flat, linking to the Deck EQ page), master and deck levels, skip, pause and resume, the FX player (play a jingle, liner or voice track over the music: it opens on the categories for the FX player, the last one used first, with the whole library as a last tab), the next tracks (with their categories), outputs and their state and listeners, the engine's state, and the cart wall: pages of pads that fire the FX player, one click or a function key ([Cart wall](#cart-wall)) | operator |
 | **Queue** | The waiting tracks, the cued one first, with their categories (color and name) and expected start times; drag to reorder (or use the keyboard: focus the handle, space, arrows, space), play next, remove, clear; add tracks from the library; autofill on or off | operator |
 | **History** | Every play by day, with how it ended (played, skipped…) and for how long | |
 | **Tracks** | The library: search, filters (playable, not analyzed, silent, missing, disabled, needs review), category, labels (any, all, none of), never played, not played for N days, added in the last N days, bitrate below, era, mood, sound code, the tracks of one import (from the Buffer page); sort by any column, either way; choose the columns (added, last played, plays, bitrate, year, era, BPM, mood, sound code, genre, labels, lowest and highest level); select tracks, a page or every matching track, then queue them, label them, put them in a category (or a new one, created on the spot), set their mood, sound code or BPM, edit their tags, go back to the files' tags, disable or enable them; delete a selection (to the trash, after a confirmation that lists what goes). The most used actions are buttons (play next, add to queue, edit tags, clear), the others in a **…** menu (keyboard: Enter or Space opens it, the arrows move, Escape closes); preview a track in the browser, from its cue-in to its cue-out, one at a time (every role; files the browser cannot play show a warning; `usePreview` in `web/src/lib/preview.ts` serves other lists too) | operator |
@@ -40,6 +40,19 @@ Viewers see every page (except users and webhooks) without the controls. Every p
 ## Several stations
 
 With [several stations](stations.md#web-ui), a **station switcher** at the top of the menu chooses the station the pages show, among those the user sees; the choice is kept in the browser, per user. The pages of a station (On air, Queue, History, Statistics, the programming and station pages) show that station, and their actions follow the user's role there; the library pages are shared and show each category's, medley's and restriction's stations as badges. The track and artist pages give the plays per station, and the track list can count the plays of one station. With one station, nothing changes: no switcher, no badges. The pages call a station's routes under `/api/v1/stations/{id}/…`, typed from the OpenAPI document like every other call, so a page cannot reach another station's route by mistake.
+
+## Cart wall
+
+Under the decks on *On air*, operators and admins get a wall of pads; viewers see nothing. A station has named **pages** (*Jingles*, *Liners*, *IDs*, *Ads*…), each with up to **12 pads**, one per function key; the pads fire the FX player, so one FX plays at a time and a second pad replaces it. A pad shows its label, its track's length, a progress line while it is on air and the file's absence when its track went missing: it then refuses to play and says so.
+
+- **Fire:** click a pad, or press `F1`–`F12` (the keys are ignored while a field has focus, and holding a key fires once). `Esc` stops the FX while the focus is inside the panel.
+- **Pages:** `Shift` + `F1`–`F12` choose a page by its position, `PageUp` and `PageDown` the one before and after, round the end; clicking a page's tab does the same.
+- **Edit:** *Edit* turns the pads into targets: click one to change its track, label and colour (or move it to another page), drag one onto another to reorder them, click an empty pad to fill it, *Page* to rename the current page, move it or delete it with its pads. *Done* leaves the mode. Changes are saved at once.
+- **MIDI:** a pad can learn a note or a control change from a controller (*MIDI → Learn*, then press the key or move the control). The mapping is kept in the browser (`localStorage`, `heron.carts.midi`), per pad, so the same page on another machine learns its own; a missing controller is not an error, and a MIDI message on a mapped control fires the pad as a click does.
+
+A **Stream Deck** or a MIDI console needs nothing special: map the buttons to `F1`–`F12` and the page keys, or learn the notes in the pads' dialogs and leave the deck in MIDI mode.
+
+The routes are in [API – Cart wall](api.md#routes) (`/cart-pages`, `/carts`, `/carts/{id}/play`).
 
 ## Painting the schedule
 
