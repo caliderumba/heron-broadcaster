@@ -153,6 +153,11 @@ export function Categories() {
                           {t("categories.fxPlayerChip")}
                         </span>
                       )}
+                      {!category.ducks_music && (
+                        <span className="chip" title={t("categories.noDuckHint")}>
+                          {t("categories.noDuckChip")}
+                        </span>
+                      )}
                     </span>
                   </td>
                   <td>{category.type_name ?? <span className="muted">–</span>}</td>
@@ -216,6 +221,7 @@ function CategoryDialog({ category, onClose }: Readonly<{ category: Category | n
   const [name, setName] = useState(category?.name ?? "");
   const [color, setColor] = useState(category?.color ?? COLORS[0] ?? "#2f6fd6");
   const [fxPlayer, setFxPlayer] = useState(category?.fx_player ?? false);
+  const [ducksMusic, setDucksMusic] = useState(category?.ducks_music ?? true);
   const types = useCategoryTypes();
   // New categories are songs, the first type, unless chosen otherwise.
   const [typeId, setTypeId] = useState<number | null | undefined>(category ? (category.type_id ?? null) : undefined);
@@ -237,6 +243,7 @@ function CategoryDialog({ category, onClose }: Readonly<{ category: Category | n
         color,
         type_id: chosenType,
         fx_player: fxPlayer,
+        ducks_music: ducksMusic,
         separation,
         ...(several ? { station_ids: stationIds } : {}),
       };
@@ -309,6 +316,12 @@ function CategoryDialog({ category, onClose }: Readonly<{ category: Category | n
           <label className="check">
             <input type="checkbox" checked={fxPlayer} onChange={(e) => setFxPlayer(e.target.checked)} />
             {t("categories.fxPlayerCheck")}
+          </label>
+        </Field>
+        <Field label={t("categories.ducksMusic")} hint={t("categories.ducksMusicHint")}>
+          <label className="check">
+            <input type="checkbox" checked={ducksMusic} onChange={(e) => setDucksMusic(e.target.checked)} />
+            {t("categories.ducksMusicCheck")}
           </label>
         </Field>
         <fieldset>
