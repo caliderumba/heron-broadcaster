@@ -11,9 +11,15 @@ pub mod aac;
 pub mod connection;
 pub mod encoder;
 pub mod external;
+pub mod file;
+pub mod hls;
 pub mod icecast;
+pub mod opus;
+pub mod pipe;
 pub mod pipeline;
+pub mod shoutcast;
 pub mod sink;
+pub mod vorbis;
 
 pub use connection::{ConnectionKind, HandedConnection};
 pub use pipeline::{OutputSnapshot, Outputs};

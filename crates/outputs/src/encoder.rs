@@ -29,6 +29,10 @@ pub enum EncodeError {
     Mp3(String),
     #[error("AAC encoding failed: {0}")]
     Aac(String),
+    #[error("Opus encoding failed: {0}")]
+    Opus(String),
+    #[error("Vorbis encoding failed: {0}")]
+    Vorbis(String),
     #[error(transparent)]
     Resample(#[from] heron_dsp::resample::Error),
     /// The external FFmpeg encoder failed; it starts again after a delay.
@@ -53,15 +57,11 @@ pub fn build(profile: &EncoderProfile) -> Result<Box<dyn Encoder>, ConfigError> 
     match profile.encoder {
         EncoderKind::Mp3 => Ok(Box::new(Mp3Encoder::new(profile)?)),
         EncoderKind::Aac => crate::aac::build(profile),
+        EncoderKind::Opus => Ok(Box::new(crate::opus::OpusEncoder::new(profile)?)),
+        EncoderKind::Vorbis => Ok(Box::new(crate::vorbis::VorbisEncoder::new(profile)?)),
         EncoderKind::ExternalFfmpeg => {
             Ok(Box::new(crate::external::ExternalEncoder::new(profile)?))
         }
-        kind => Err(ConfigError::Profile {
-            profile: profile.name.clone(),
-            reason: format!(
-                "the {kind:?} encoder arrives in M11; MP3, AAC-LC and the external FFmpeg encoder are available"
-            ),
-        }),
     }
 }
 
@@ -363,9 +363,31 @@ mod tests {
         bad.bitrate_kbps = Some(128);
         bad.options = serde_json::json!({"mode": "abr"});
         assert!(build(&bad).is_err());
-        bad.options = serde_json::Value::Null;
-        bad.encoder = EncoderKind::Opus;
-        let error = build(&bad).err().unwrap();
-        assert!(error.to_string().contains("M11"), "{error}");
+    }
+
+    #[test]
+    fn encodes_opus() {
+        let mut opus_profile = profile(serde_json::Value::Null, 48_000, 2);
+        opus_profile.encoder = EncoderKind::Opus;
+        opus_profile.bitrate_kbps = Some(96);
+        let mut encoder = build(&opus_profile).unwrap();
+        assert_eq!(encoder.info().content_type, "audio/ogg");
+        assert_eq!(encoder.info().sample_rate, 48_000);
+        let data = encode_tone(encoder.as_mut(), 1);
+        assert!(!data.is_empty());
+        assert_eq!(&data[..4], b"OggS");
+    }
+
+    #[test]
+    fn encodes_vorbis() {
+        let mut vorbis_profile = profile(serde_json::Value::Null, 44_100, 2);
+        vorbis_profile.encoder = EncoderKind::Vorbis;
+        vorbis_profile.bitrate_kbps = Some(128);
+        let mut encoder = build(&vorbis_profile).unwrap();
+        assert_eq!(encoder.info().content_type, "audio/ogg");
+        assert_eq!(encoder.info().sample_rate, 44_100);
+        let data = encode_tone(encoder.as_mut(), 1);
+        assert!(!data.is_empty());
+        assert_eq!(&data[..4], b"OggS");
     }
 }

@@ -27,7 +27,11 @@ use tokio::sync::{broadcast, mpsc, oneshot, watch};
 use crate::ConfigError;
 use crate::connection::HandedConnection;
 use crate::encoder::{self, Encoder, INPUT_CHANNELS};
+use crate::file::{FileConfig, FileSink};
+use crate::hls::{HlsConfig, HlsSink};
 use crate::icecast::{IcecastConfig, IcecastSink};
+use crate::pipe::{PipeConfig, PipeSink};
+use crate::shoutcast::{ShoutcastConfig, ShoutcastSink, ShoutcastVersion};
 use crate::sink::{self, NowPlaying, OutputState, OutputStatus, ReleaseRequest};
 
 /// Frames handed to the encoders at once, at most.
@@ -442,6 +446,54 @@ impl Outputs {
                         release_requests,
                     ))
                 }
+                SinkConfig::Shoutcast(version, shoutcast) => {
+                    let info = pipeline.info.clone();
+                    let handed = adopted.remove(&output.id);
+                    let sink =
+                        ShoutcastSink::new(version, shoutcast, info, self.relay.clone(), handed);
+                    self.runtime.spawn(sink::run(
+                        sink,
+                        output.name.clone(),
+                        pipeline.audio.clone(),
+                        self.metadata_for(output),
+                        Arc::clone(&status),
+                        release_requests,
+                    ))
+                }
+                SinkConfig::Hls(hls) => {
+                    let info = pipeline.info.clone();
+                    let sink = HlsSink::new(hls, info);
+                    self.runtime.spawn(sink::run(
+                        sink,
+                        output.name.clone(),
+                        pipeline.audio.clone(),
+                        self.metadata_for(output),
+                        Arc::clone(&status),
+                        release_requests,
+                    ))
+                }
+                SinkConfig::File(file) => {
+                    let sink = FileSink::new(file);
+                    self.runtime.spawn(sink::run(
+                        sink,
+                        output.name.clone(),
+                        pipeline.audio.clone(),
+                        self.metadata_for(output),
+                        Arc::clone(&status),
+                        release_requests,
+                    ))
+                }
+                SinkConfig::Pipe(pipe) => {
+                    let sink = PipeSink::new(pipe);
+                    self.runtime.spawn(sink::run(
+                        sink,
+                        output.name.clone(),
+                        pipeline.audio.clone(),
+                        self.metadata_for(output),
+                        Arc::clone(&status),
+                        release_requests,
+                    ))
+                }
             };
             self.running.insert(
                 output.id,
@@ -551,6 +603,10 @@ impl Drop for Outputs {
 
 enum SinkConfig {
     Icecast(IcecastConfig),
+    Shoutcast(ShoutcastVersion, ShoutcastConfig),
+    Hls(HlsConfig),
+    File(FileConfig),
+    Pipe(PipeConfig),
 }
 
 fn sink_config(output: &OutputConfig) -> Result<SinkConfig, ConfigError> {
@@ -559,10 +615,26 @@ fn sink_config(output: &OutputConfig) -> Result<SinkConfig, ConfigError> {
             &output.name,
             &output.config,
         )?)),
-        kind => Err(ConfigError::Output {
-            output: output.name.clone(),
-            reason: format!("{kind:?} outputs arrive in M11; only Icecast is available"),
-        }),
+        OutputKind::ShoutcastV1 => Ok(SinkConfig::Shoutcast(
+            ShoutcastVersion::V1,
+            ShoutcastConfig::parse(&output.name, &output.config)?,
+        )),
+        OutputKind::ShoutcastV2 => Ok(SinkConfig::Shoutcast(
+            ShoutcastVersion::V2,
+            ShoutcastConfig::parse(&output.name, &output.config)?,
+        )),
+        OutputKind::Hls => Ok(SinkConfig::Hls(HlsConfig::parse(
+            &output.name,
+            &output.config,
+        )?)),
+        OutputKind::File => Ok(SinkConfig::File(FileConfig::parse(
+            &output.name,
+            &output.config,
+        )?)),
+        OutputKind::Pipe => Ok(SinkConfig::Pipe(PipeConfig::parse(
+            &output.name,
+            &output.config,
+        )?)),
     }
 }
 
