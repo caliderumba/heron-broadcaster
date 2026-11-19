@@ -37,7 +37,7 @@ Progress is tracked here: the status column below and the acceptance checklists 
 | M24 | [Advertising campaigns](m24-advertising.md) | M6, M20 | Done (PR pending) |
 | M25 | [Themes: studio mode and high contrast](m25-themes.md) | M18–M24, M5 | Done (PR pending) |
 | M23 | [Listener requests](m23-requests.md) | M4, M5, M6 | Done (PR pending) |
-| M22 | [Reports and airplay](m22-reports.md) | M4, M5 | Planned |
+| M22 | [Reports and airplay](m22-reports.md) | M4, M5 | Done (PR pending) |
 
 **M18–M25** turn the comparison with RadioDJ v1, SAM Broadcaster and RadioBOSS into work: the cart wall and its shortcuts, ducking and voice links, scheduled events, spoken time, advertising, themes, listener requests and reports. M18, M19, M20, M21, M23, M24 and M25 have their work and PRs completed; M22 completes the series following the user's prioritization.
 

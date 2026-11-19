@@ -124,6 +124,17 @@ Heron allows audience interaction through a public request portal and an operato
 
 The routes are in [API – Listener requests](api.md#routes) (`/stations/{id}/requests`, `/public/requests`).
 
+## Reports and airplay
+
+On *Reports*, operators and managers inspect airplay compliance and station programming performance:
+
+- **Playout compliance logs:** search and filter full playout history within customizable time windows by play source, minimum duration, and keyword.
+- **PRO & royalty export:** one-click export to CSV (compatible with SoundExchange, ASCAP, BMI, SESAC, and international licensing societies) or JSON. Includes play timestamps, artist, title, album, ISRC, duration, and deck.
+- **Top charts:** rankings of the station's most played tracks and artists in any date range, showing total plays and airtime.
+- **Airplay summary:** high-level performance indicators (total broadcast events, airtime, unique repertoire depth, and source breakdown percentages).
+
+The routes are in [API – Reports and airplay](api.md#routes) (`/stations/{id}/reports/airplay`, `/stations/{id}/reports/top-tracks`, `/stations/{id}/reports/summary`).
+
 ## Painting the schedule
 
 On *Schedule*, pick a clock (or *No clock*), then:
