@@ -11,6 +11,7 @@ import { chooseStation } from "../lib/station";
 import { answer, browserStubs, lenient, renderApp } from "../test/render";
 import { AGC_DEFAULTS, EQ_DEFAULTS, PLAYOUT_DEFAULTS } from "../test/settings";
 import { Agc } from "./Agc";
+import { Announcements } from "./Announcements";
 import { Artists } from "./Artists";
 import { Buffer } from "./Buffer";
 import { Categories } from "./Categories";
@@ -39,6 +40,7 @@ browserStubs();
 
 const PAGES: [string, () => ReactElement][] = [
   ["Agc", () => <Agc />],
+  ["Announcements", () => <Announcements />],
   ["Artists", () => <Artists />],
   ["Buffer", () => <Buffer />],
   ["Categories", () => <Categories />],
@@ -71,6 +73,25 @@ describe("pages without data", () => {
         "GET /api/v1/stations/{station_id}/settings/agc": AGC_DEFAULTS,
         "GET /api/v1/stations/{station_id}/settings/eq": EQ_DEFAULTS,
         "GET /api/v1/stations/{station_id}/settings/playout": PLAYOUT_DEFAULTS,
+        "GET /api/v1/stations/{station_id}/announcements/time": {
+          enabled: false,
+          format: "h24",
+          voice_pack: "default",
+        },
+        "GET /api/v1/stations/{station_id}/announcements/weather": {
+          enabled: false,
+          city: "",
+          latitude: null,
+          longitude: null,
+          units: "metric",
+        },
+        "GET /api/v1/stations/{station_id}/announcements/weather/status": {
+          city: "",
+          temperature: null,
+          summary: null,
+          units: "metric",
+          fetched_at_unix_ms: null,
+        },
       }),
     );
     chooseStation(1);

@@ -81,6 +81,12 @@ export type ScheduledEvent = Schemas["ScheduledEvent"];
 export type TriggerType = Schemas["TriggerType"];
 export type TimingMode = Schemas["TimingMode"];
 export type ActionType = Schemas["ActionType"];
+export type TimeAnnouncementsSettings = Schemas["TimeAnnouncementsSettings"];
+export type WeatherAnnouncementsSettings = Schemas["WeatherAnnouncementsSettings"];
+export type WeatherStatus = Schemas["WeatherStatus"];
+export type AnnouncementPreview = Schemas["AnnouncementPreview"];
+export type TimeFormat = Schemas["TimeFormat"];
+export type WeatherUnits = Schemas["WeatherUnits"];
 
 export type TrackFilter = NonNullable<
   NonNullable<paths["/api/v1/tracks"]["get"]["parameters"]["query"]>["filter"]
