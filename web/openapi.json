@@ -6110,6 +6110,125 @@
         ]
       }
     },
+    "/api/v1/public/requests": {
+      "post": {
+        "tags": [
+          "public"
+        ],
+        "summary": "Submits a new listener song request.",
+        "operationId": "public_submit_request",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmitRequestPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubmitRequestResponse"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {}
+        ]
+      }
+    },
+    "/api/v1/public/requests/search": {
+      "get": {
+        "tags": [
+          "public"
+        ],
+        "summary": "Searches playable songs in the station's library for audience request.",
+        "operationId": "public_search_requests_tracks",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PublicSearchTrack"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {}
+        ]
+      }
+    },
+    "/api/v1/public/requests/settings": {
+      "get": {
+        "tags": [
+          "public"
+        ],
+        "summary": "Gets public station request portal configuration and branding.",
+        "operationId": "public_get_requests_settings",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicRequestsSettings"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {}
+        ]
+      }
+    },
     "/api/v1/public/stations/{code}/history": {
       "get": {
         "tags": [
@@ -6235,6 +6354,156 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/PublicQueue"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {}
+        ]
+      }
+    },
+    "/api/v1/public/stations/{code}/requests": {
+      "post": {
+        "tags": [
+          "public"
+        ],
+        "summary": "Submits a new listener song request.",
+        "operationId": "public_submit_request_on_station",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "description": "The station's code",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmitRequestPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubmitRequestResponse"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {}
+        ]
+      }
+    },
+    "/api/v1/public/stations/{code}/requests/search": {
+      "get": {
+        "tags": [
+          "public"
+        ],
+        "summary": "Searches playable songs in the station's library for audience request.",
+        "operationId": "public_search_requests_tracks_on_station",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "description": "The station's code",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PublicSearchTrack"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {}
+        ]
+      }
+    },
+    "/api/v1/public/stations/{code}/requests/settings": {
+      "get": {
+        "tags": [
+          "public"
+        ],
+        "summary": "Gets public station request portal configuration and branding.",
+        "operationId": "public_get_requests_settings_on_station",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "description": "The station's code",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicRequestsSettings"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
                 }
               }
             }
@@ -6443,6 +6712,262 @@
             }
           },
           "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/requests": {
+      "get": {
+        "tags": [
+          "requests"
+        ],
+        "summary": "Lists listener song requests for operator moderation.",
+        "operationId": "list_requests",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/RequestStatus"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 0
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ListenerRequestView"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/requests/settings": {
+      "get": {
+        "tags": [
+          "requests"
+        ],
+        "summary": "Gets station requests configuration.",
+        "operationId": "get_requests_settings",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StationRequestsSettings"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "requests"
+        ],
+        "summary": "Updates station requests configuration.",
+        "operationId": "update_requests_settings",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateRequestsSettings"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StationRequestsSettings"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/requests/{id}": {
+      "delete": {
+        "tags": [
+          "requests"
+        ],
+        "summary": "Deletes a listener request record from the database.",
+        "operationId": "delete_request",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The request ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 0
+            }
+          }
+        ],
+        "responses": {
+          "204": {},
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/requests/{id}/approve": {
+      "post": {
+        "tags": [
+          "requests"
+        ],
+        "summary": "Approves a pending song request and enqueues the track with source = request.",
+        "operationId": "approve_request",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The request ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 0
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApproveRequestPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListenerRequestView"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/requests/{id}/reject": {
+      "post": {
+        "tags": [
+          "requests"
+        ],
+        "summary": "Rejects a pending song request.",
+        "operationId": "reject_request",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The request ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListenerRequestView"
+                }
+              }
+            }
+          },
+          "4XX": {
             "content": {
               "application/json": {
                 "schema": {
@@ -11870,6 +12395,320 @@
         }
       }
     },
+    "/api/v1/stations/{station_id}/requests": {
+      "get": {
+        "tags": [
+          "requests"
+        ],
+        "summary": "Lists listener song requests for operator moderation.",
+        "operationId": "list_requests_on_station",
+        "parameters": [
+          {
+            "name": "station_id",
+            "in": "path",
+            "description": "The station's ID",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/RequestStatus"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 0
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ListenerRequestView"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/stations/{station_id}/requests/settings": {
+      "get": {
+        "tags": [
+          "requests"
+        ],
+        "summary": "Gets station requests configuration.",
+        "operationId": "get_requests_settings_on_station",
+        "parameters": [
+          {
+            "name": "station_id",
+            "in": "path",
+            "description": "The station's ID",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StationRequestsSettings"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "requests"
+        ],
+        "summary": "Updates station requests configuration.",
+        "operationId": "update_requests_settings_on_station",
+        "parameters": [
+          {
+            "name": "station_id",
+            "in": "path",
+            "description": "The station's ID",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateRequestsSettings"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StationRequestsSettings"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/stations/{station_id}/requests/{id}": {
+      "delete": {
+        "tags": [
+          "requests"
+        ],
+        "summary": "Deletes a listener request record from the database.",
+        "operationId": "delete_request_on_station",
+        "parameters": [
+          {
+            "name": "station_id",
+            "in": "path",
+            "description": "The station's ID",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The request ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 0
+            }
+          }
+        ],
+        "responses": {
+          "204": {},
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/stations/{station_id}/requests/{id}/approve": {
+      "post": {
+        "tags": [
+          "requests"
+        ],
+        "summary": "Approves a pending song request and enqueues the track with source = request.",
+        "operationId": "approve_request_on_station",
+        "parameters": [
+          {
+            "name": "station_id",
+            "in": "path",
+            "description": "The station's ID",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The request ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 0
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApproveRequestPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListenerRequestView"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/stations/{station_id}/requests/{id}/reject": {
+      "post": {
+        "tags": [
+          "requests"
+        ],
+        "summary": "Rejects a pending song request.",
+        "operationId": "reject_request_on_station",
+        "parameters": [
+          {
+            "name": "station_id",
+            "in": "path",
+            "description": "The station's ID",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The request ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListenerRequestView"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/stations/{station_id}/rotation/picks": {
       "get": {
         "tags": [
@@ -15965,6 +16804,21 @@
           },
           "name": {
             "type": "string"
+          }
+        }
+      },
+      "ApproveRequestPayload": {
+        "type": "object",
+        "description": "Optional positioning payload when approving a request.",
+        "properties": {
+          "position": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32",
+            "description": "0 for top of queue / next to play, None for end of queue.",
+            "minimum": 0
           }
         }
       },
@@ -20461,6 +21315,94 @@
           "end"
         ]
       },
+      "ListenerRequestView": {
+        "type": "object",
+        "description": "Full details of a listener request for operator moderation.",
+        "required": [
+          "id",
+          "station_id",
+          "track_id",
+          "title",
+          "artist",
+          "duration_ms",
+          "listener_name",
+          "dedication",
+          "status",
+          "client_token",
+          "requested_at_unix_ms"
+        ],
+        "properties": {
+          "album": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "artist": {
+            "type": "string"
+          },
+          "client_token": {
+            "type": "string"
+          },
+          "dedication": {
+            "type": "string"
+          },
+          "duration_ms": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "listener_name": {
+            "type": "string"
+          },
+          "requested_at_unix_ms": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "reviewed_at_unix_ms": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "reviewed_by": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64",
+            "minimum": 0
+          },
+          "reviewed_by_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "station_id": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "status": {
+            "$ref": "#/components/schemas/RequestStatus"
+          },
+          "title": {
+            "type": "string"
+          },
+          "track_id": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          }
+        }
+      },
       "ListenersNow": {
         "type": "object",
         "required": [
@@ -22771,6 +23713,81 @@
           }
         }
       },
+      "PublicRequestsSettings": {
+        "type": "object",
+        "description": "Publicly exposed station request settings for the listener portal.",
+        "required": [
+          "enabled",
+          "allow_dedication",
+          "max_dedication_len",
+          "title",
+          "subtitle"
+        ],
+        "properties": {
+          "allow_dedication": {
+            "type": "boolean"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "max_dedication_len": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "subtitle": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          }
+        }
+      },
+      "PublicSearchTrack": {
+        "type": "object",
+        "description": "A playable track found via public search.",
+        "required": [
+          "id",
+          "title",
+          "artist",
+          "duration_ms",
+          "can_request"
+        ],
+        "properties": {
+          "album": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "artist": {
+            "type": "string"
+          },
+          "can_request": {
+            "type": "boolean"
+          },
+          "cooldown_until_unix_ms": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "duration_ms": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "title": {
+            "type": "string"
+          }
+        }
+      },
       "PublicTrack": {
         "type": "object",
         "description": "What plays on air.",
@@ -23188,6 +24205,17 @@
           }
         },
         "additionalProperties": false
+      },
+      "RequestStatus": {
+        "type": "string",
+        "description": "Status of a listener song request.",
+        "enum": [
+          "pending",
+          "approved",
+          "rejected",
+          "played",
+          "expired"
+        ]
       },
       "RestoreReport": {
         "type": "object",
@@ -25130,6 +26158,54 @@
         },
         "additionalProperties": false
       },
+      "StationRequestsSettings": {
+        "type": "object",
+        "description": "Station-level configuration for listener requests.",
+        "required": [
+          "enabled",
+          "cooldown_minutes",
+          "max_pending",
+          "daily_cap",
+          "allow_dedication",
+          "max_dedication_len",
+          "title",
+          "subtitle"
+        ],
+        "properties": {
+          "allow_dedication": {
+            "type": "boolean"
+          },
+          "cooldown_minutes": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "daily_cap": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "max_dedication_len": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "max_pending": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "subtitle": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          }
+        }
+      },
       "StationRole": {
         "type": "object",
         "required": [
@@ -25275,6 +26351,62 @@
           }
         },
         "additionalProperties": false
+      },
+      "SubmitRequestPayload": {
+        "type": "object",
+        "description": "Payload sent by a listener to request a song.",
+        "required": [
+          "track_id",
+          "listener_name"
+        ],
+        "properties": {
+          "client_token": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "dedication": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "listener_name": {
+            "type": "string"
+          },
+          "track_id": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          }
+        }
+      },
+      "SubmitRequestResponse": {
+        "type": "object",
+        "description": "Confirmation returned upon submitting a request.",
+        "required": [
+          "request_id",
+          "status",
+          "client_token",
+          "message"
+        ],
+        "properties": {
+          "client_token": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "request_id": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "status": {
+            "$ref": "#/components/schemas/RequestStatus"
+          }
+        }
       },
       "SuggestionReview": {
         "type": "object",
@@ -27500,6 +28632,68 @@
           }
         },
         "additionalProperties": false
+      },
+      "UpdateRequestsSettings": {
+        "type": "object",
+        "description": "Partial update for station requests settings.",
+        "properties": {
+          "allow_dedication": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "cooldown_minutes": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32",
+            "minimum": 0
+          },
+          "daily_cap": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32",
+            "minimum": 0
+          },
+          "enabled": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "max_dedication_len": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32",
+            "minimum": 0
+          },
+          "max_pending": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32",
+            "minimum": 0
+          },
+          "subtitle": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "title": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
       },
       "User": {
         "type": "object",

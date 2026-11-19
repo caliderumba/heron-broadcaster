@@ -2074,6 +2074,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/public/requests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Submits a new listener song request. */
+        post: operations["public_submit_request"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/public/requests/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Searches playable songs in the station's library for audience request. */
+        get: operations["public_search_requests_tracks"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/public/requests/settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Gets public station request portal configuration and branding. */
+        get: operations["public_get_requests_settings"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/public/stations/{code}/history": {
         parameters: {
             query?: never;
@@ -2135,6 +2186,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/public/stations/{code}/requests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Submits a new listener song request. */
+        post: operations["public_submit_request_on_station"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/public/stations/{code}/requests/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Searches playable songs in the station's library for audience request. */
+        get: operations["public_search_requests_tracks_on_station"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/public/stations/{code}/requests/settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Gets public station request portal configuration and branding. */
+        get: operations["public_get_requests_settings_on_station"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/queue": {
         parameters: {
             query?: never;
@@ -2188,6 +2290,92 @@ export interface paths {
         /** Moves a waiting entry. */
         put: operations["move_entry"];
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/requests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Lists listener song requests for operator moderation. */
+        get: operations["list_requests"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/requests/settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Gets station requests configuration. */
+        get: operations["get_requests_settings"];
+        /** Updates station requests configuration. */
+        put: operations["update_requests_settings"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/requests/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Deletes a listener request record from the database. */
+        delete: operations["delete_request"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/requests/{id}/approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Approves a pending song request and enqueues the track with source = request. */
+        post: operations["approve_request"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/requests/{id}/reject": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Rejects a pending song request. */
+        post: operations["reject_request"];
         delete?: never;
         options?: never;
         head?: never;
@@ -3652,6 +3840,92 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/stations/{station_id}/requests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Lists listener song requests for operator moderation. */
+        get: operations["list_requests_on_station"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/stations/{station_id}/requests/settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Gets station requests configuration. */
+        get: operations["get_requests_settings_on_station"];
+        /** Updates station requests configuration. */
+        put: operations["update_requests_settings_on_station"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/stations/{station_id}/requests/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Deletes a listener request record from the database. */
+        delete: operations["delete_request_on_station"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/stations/{station_id}/requests/{id}/approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Approves a pending song request and enqueues the track with source = request. */
+        post: operations["approve_request_on_station"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/stations/{station_id}/requests/{id}/reject": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Rejects a pending song request. */
+        post: operations["reject_request_on_station"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/stations/{station_id}/rotation/picks": {
         parameters: {
             query?: never;
@@ -5088,6 +5362,14 @@ export interface components {
             /** Format: int64 */
             last_used_at_unix_ms?: number | null;
             name: string;
+        };
+        /** @description Optional positioning payload when approving a request. */
+        ApproveRequestPayload: {
+            /**
+             * Format: int32
+             * @description 0 for top of queue / next to play, None for end of queue.
+             */
+            position?: number | null;
         };
         Artist: {
             /** Format: int64 */
@@ -7011,6 +7293,31 @@ export interface components {
          * @enum {string}
          */
         LinerSlot: "start" | "between" | "end";
+        /** @description Full details of a listener request for operator moderation. */
+        ListenerRequestView: {
+            album?: string | null;
+            artist: string;
+            client_token: string;
+            dedication: string;
+            /** Format: int32 */
+            duration_ms: number;
+            /** Format: int64 */
+            id: number;
+            listener_name: string;
+            /** Format: int64 */
+            requested_at_unix_ms: number;
+            /** Format: int64 */
+            reviewed_at_unix_ms?: number | null;
+            /** Format: int64 */
+            reviewed_by?: number | null;
+            reviewed_by_name?: string | null;
+            /** Format: int64 */
+            station_id: number;
+            status: components["schemas"]["RequestStatus"];
+            title: string;
+            /** Format: int64 */
+            track_id: number;
+        };
         ListenersNow: {
             /** @description Each enabled output read at the last minute. */
             outputs: components["schemas"]["OutputListeners"][];
@@ -7956,6 +8263,28 @@ export interface components {
             /** @description In airing order; empty while the engine is unreachable. */
             upcoming: components["schemas"]["UpcomingTrack"][];
         };
+        /** @description Publicly exposed station request settings for the listener portal. */
+        PublicRequestsSettings: {
+            allow_dedication: boolean;
+            enabled: boolean;
+            /** Format: int32 */
+            max_dedication_len: number;
+            subtitle: string;
+            title: string;
+        };
+        /** @description A playable track found via public search. */
+        PublicSearchTrack: {
+            album?: string | null;
+            artist: string;
+            can_request: boolean;
+            /** Format: int64 */
+            cooldown_until_unix_ms?: number | null;
+            /** Format: int32 */
+            duration_ms: number;
+            /** Format: int64 */
+            id: number;
+            title: string;
+        };
         /** @description What plays on air. */
         PublicTrack: {
             album?: string | null;
@@ -8188,6 +8517,11 @@ export interface components {
         RenderRequest: {
             parts: components["schemas"]["Part"][];
         };
+        /**
+         * @description Status of a listener song request.
+         * @enum {string}
+         */
+        RequestStatus: "pending" | "approved" | "rejected" | "played" | "expired";
         /** @description What a restore did. */
         RestoreReport: {
             /** @description The backup taken just before. */
@@ -8892,6 +9226,21 @@ export interface components {
             /** Format: int32 */
             position?: number;
         };
+        /** @description Station-level configuration for listener requests. */
+        StationRequestsSettings: {
+            allow_dedication: boolean;
+            /** Format: int32 */
+            cooldown_minutes: number;
+            /** Format: int32 */
+            daily_cap: number;
+            enabled: boolean;
+            /** Format: int32 */
+            max_dedication_len: number;
+            /** Format: int32 */
+            max_pending: number;
+            subtitle: string;
+            title: string;
+        };
         StationRole: {
             role: components["schemas"]["StationRoleName"];
             /** Format: int64 */
@@ -8969,6 +9318,22 @@ export interface components {
              * @default -40
              */
             threshold_db: number;
+        };
+        /** @description Payload sent by a listener to request a song. */
+        SubmitRequestPayload: {
+            client_token?: string | null;
+            dedication?: string | null;
+            listener_name: string;
+            /** Format: int64 */
+            track_id: number;
+        };
+        /** @description Confirmation returned upon submitting a request. */
+        SubmitRequestResponse: {
+            client_token: string;
+            message: string;
+            /** Format: int64 */
+            request_id: number;
+            status: components["schemas"]["RequestStatus"];
         };
         SuggestionReview: {
             /** @description `true` marks the artists similar; `false` dismisses the suggestion. */
@@ -9654,6 +10019,21 @@ export interface components {
             time_of_day_s: number;
             timing_mode: components["schemas"]["TimingMode"];
             trigger_type: components["schemas"]["TriggerType"];
+        };
+        /** @description Partial update for station requests settings. */
+        UpdateRequestsSettings: {
+            allow_dedication?: boolean | null;
+            /** Format: int32 */
+            cooldown_minutes?: number | null;
+            /** Format: int32 */
+            daily_cap?: number | null;
+            enabled?: boolean | null;
+            /** Format: int32 */
+            max_dedication_len?: number | null;
+            /** Format: int32 */
+            max_pending?: number | null;
+            subtitle?: string | null;
+            title?: string | null;
         };
         User: {
             /** Format: int64 */
@@ -14437,6 +14817,93 @@ export interface operations {
             };
         };
     };
+    public_submit_request: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SubmitRequestPayload"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubmitRequestResponse"];
+                };
+            };
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+        };
+    };
+    public_search_requests_tracks: {
+        parameters: {
+            query: {
+                q: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicSearchTrack"][];
+                };
+            };
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+        };
+    };
+    public_get_requests_settings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicRequestsSettings"];
+                };
+            };
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+        };
+    };
     public_history_on_station: {
         parameters: {
             query?: {
@@ -14512,6 +14979,102 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PublicQueue"];
+                };
+            };
+        };
+    };
+    public_submit_request_on_station: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The station's code */
+                code: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SubmitRequestPayload"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubmitRequestResponse"];
+                };
+            };
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+        };
+    };
+    public_search_requests_tracks_on_station: {
+        parameters: {
+            query: {
+                q: string;
+            };
+            header?: never;
+            path: {
+                /** @description The station's code */
+                code: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicSearchTrack"][];
+                };
+            };
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+        };
+    };
+    public_get_requests_settings_on_station: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The station's code */
+                code: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicRequestsSettings"];
+                };
+            };
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
                 };
             };
         };
@@ -14685,6 +15248,187 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+        };
+    };
+    list_requests: {
+        parameters: {
+            query?: {
+                status?: components["schemas"]["RequestStatus"];
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ListenerRequestView"][];
+                };
+            };
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+        };
+    };
+    get_requests_settings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StationRequestsSettings"];
+                };
+            };
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+        };
+    };
+    update_requests_settings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateRequestsSettings"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StationRequestsSettings"];
+                };
+            };
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+        };
+    };
+    delete_request: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The request ID */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+        };
+    };
+    approve_request: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The request ID */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ApproveRequestPayload"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ListenerRequestView"];
+                };
+            };
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+        };
+    };
+    reject_request: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The request ID */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ListenerRequestView"];
                 };
             };
             "4XX": {
@@ -18524,6 +19268,202 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+        };
+    };
+    list_requests_on_station: {
+        parameters: {
+            query?: {
+                status?: components["schemas"]["RequestStatus"];
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path: {
+                /** @description The station's ID */
+                station_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ListenerRequestView"][];
+                };
+            };
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+        };
+    };
+    get_requests_settings_on_station: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The station's ID */
+                station_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StationRequestsSettings"];
+                };
+            };
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+        };
+    };
+    update_requests_settings_on_station: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The station's ID */
+                station_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateRequestsSettings"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StationRequestsSettings"];
+                };
+            };
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+        };
+    };
+    delete_request_on_station: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The station's ID */
+                station_id: number;
+                /** @description The request ID */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+        };
+    };
+    approve_request_on_station: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The station's ID */
+                station_id: number;
+                /** @description The request ID */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ApproveRequestPayload"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ListenerRequestView"];
+                };
+            };
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+        };
+    };
+    reject_request_on_station: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The station's ID */
+                station_id: number;
+                /** @description The request ID */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ListenerRequestView"];
                 };
             };
             "4XX": {

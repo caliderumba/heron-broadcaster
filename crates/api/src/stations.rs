@@ -44,7 +44,7 @@ const MAX_CODE_LENGTH: usize = 32;
 
 /// The first path segments, under `/api/v1`, of what is per station.
 /// `settings` is per station only for the groups in [`STATION_SETTINGS`].
-const PER_STATION: [&str; 20] = [
+const PER_STATION: [&str; 21] = [
     "engine",
     "live",
     "playout",
@@ -58,6 +58,7 @@ const PER_STATION: [&str; 20] = [
     "events",
     "announcements",
     "campaigns",
+    "requests",
     "outputs",
     "webhooks",
     "webhook-deliveries",
@@ -71,7 +72,14 @@ const STATION_SETTINGS: [&str; 7] = [
     "playout", "eq", "agc", "queue", "rotation", "station", "medleys",
 ];
 /// The public routes per station (`/public/{route}`).
-const PUBLIC: [&str; 3] = ["now-playing", "queue", "history"];
+const PUBLIC: [&str; 6] = [
+    "now-playing",
+    "queue",
+    "history",
+    "requests/settings",
+    "requests/search",
+    "requests",
+];
 
 /// A station as stored.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, ToSchema, sqlx::FromRow)]

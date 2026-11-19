@@ -95,6 +95,13 @@ export type ProofOfPlayReport = Schemas["ProofOfPlayReport"];
 export type ProofOfPlayItem = Schemas["ProofOfPlayItem"];
 export type NextBreakResponse = Schemas["NextBreakResponse"];
 export type NextBreakSpot = Schemas["NextBreakSpot"];
+export type RequestStatus = Schemas["RequestStatus"];
+export type StationRequestsSettings = Schemas["StationRequestsSettings"];
+export type PublicRequestsSettings = Schemas["PublicRequestsSettings"];
+export type PublicSearchTrack = Schemas["PublicSearchTrack"];
+export type ListenerRequestView = Schemas["ListenerRequestView"];
+export type SubmitRequestPayload = Schemas["SubmitRequestPayload"];
+export type SubmitRequestResponse = Schemas["SubmitRequestResponse"];
 
 export type TrackFilter = NonNullable<
   NonNullable<paths["/api/v1/tracks"]["get"]["parameters"]["query"]>["filter"]
