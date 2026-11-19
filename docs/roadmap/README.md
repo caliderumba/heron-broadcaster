@@ -35,7 +35,7 @@ Progress is tracked here: the status column below and the acceptance checklists 
 | M20 | [Scheduled events](m20-events.md) | M2, M4, M6, M18 | Done (PR pending) |
 | M21 | [Spoken time, weather and station IDs](m21-spoken-time.md) | M18, M19, M20 | Done (PR pending) |
 | M24 | [Advertising campaigns](m24-advertising.md) | M6, M20 | Done (PR pending) |
-| M25 | [Themes: studio mode and high contrast](m25-themes.md) | M18–M24, M5 | Planned |
+| M25 | [Themes: studio mode and high contrast](m25-themes.md) | M18–M24, M5 | Done (PR pending) |
 | M23 | [Listener requests](m23-requests.md) | M4, M5, M6 | Planned |
 | M22 | [Reports and airplay](m22-reports.md) | M4, M5 | Planned |
 
