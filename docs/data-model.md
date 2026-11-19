@@ -184,6 +184,12 @@ Statistics settings are in `settings` (`statistics`: `min_session_s`, `retention
 
 Authentication is local only for now ([Decisions](decisions.md#decisions-made-after-the-handoff), [API](api.md#authentication)).
 
+## Announcements and Spoken Audio
+
+| Table | Columns |
+|---|---|
+| `station_announcements` | station_id (PK, FK stations), time_enabled, time_format (`12h`, `24h`), time_voice_pack, weather_enabled, weather_city, weather_latitude, weather_longitude, weather_units (`metric`, `imperial`), weather_cached_temp, weather_cached_summary, weather_fetched_at, updated_at |
+
 ## Relationships
 
 ```
@@ -211,4 +217,5 @@ webhooks 1──* webhook_deliveries
 users 1──* sessions, api_tokens
 encoder_profiles 1──* outputs
 stations 1──* scheduled_events
+stations 1──0..1 station_announcements
 ```

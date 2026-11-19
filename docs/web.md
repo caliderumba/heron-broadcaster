@@ -93,6 +93,15 @@ On *Events*, operators and admins manage timed actions that fire on schedule:
 
 The routes are in [API – Scheduled events](api.md#routes) (`/stations/{id}/events`, `/stations/{id}/events/{id}/run-now`).
 
+## Spoken time and weather
+
+On *Announcements*, operators and admins configure automated voice announcements:
+- **Spoken time:** choose 12-hour or 24-hour time announcements, select the active voice pack, and test with the *Preview time* button.
+- **Weather reports:** enter city name or latitude and longitude, select Celsius or Fahrenheit, set the refresh interval, and test the announcement audio.
+- **Scheduled triggers & Cart wall:** fire time and weather announcements from scheduled events (`announce_time`, `announce_weather`) or by assigning them to cart wall pads. Live ducking automatically lowers music on Decks A and B while the announcement plays.
+
+The routes are in [API – Announcements](api.md#routes) (`/stations/{id}/announcements/time`, `/stations/{id}/announcements/weather`).
+
 ## Painting the schedule
 
 On *Schedule*, pick a clock (or *No clock*), then:
