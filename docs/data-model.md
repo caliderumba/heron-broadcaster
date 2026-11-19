@@ -150,6 +150,14 @@ See [Encoders and outputs](outputs.md). The engine never reads these tables: the
 | `encoder_profiles` | id, name, encoder (mp3, aac, opus, vorbis, external_ffmpeg), bitrate_kbps, sample_rate, channels, options (JSON: VBR/CBR, ffmpeg binary path and arguments, …). A fresh install has `MP3 128k` |
 | `outputs` | id, name, kind (icecast, shoutcast_v1, shoutcast_v2, hls, file, pipe), encoder_profile_id, config (JSON: host, port, mount, credentials, HLS directory and segment settings, …), metadata_enabled, enabled |
 
+## Scheduled events
+
+See [Scheduled events](roadmap/m20-events.md).
+
+| Table | Columns |
+|---|---|
+| `scheduled_events` | id, station_id, name, enabled, trigger_type (recurring, interval, once), days_mask, time_of_day_s, interval_s, scheduled_at, timing_mode (exact, next), action_type (play_track, play_category, relay, load_clock), action_data (JSON), last_run_at, next_run_at, created_at, updated_at |
+
 ## Listener statistics
 
 See [Listener statistics](statistics.md). No IP address is ever stored.
@@ -202,4 +210,5 @@ play_history *──1 tracks
 webhooks 1──* webhook_deliveries
 users 1──* sessions, api_tokens
 encoder_profiles 1──* outputs
+stations 1──* scheduled_events
 ```

@@ -15,6 +15,7 @@
 | **Track** | Waveform with the level in dBFS under the pointer and at the playhead, the lowest and highest level between the cue points, the cue-in, cue-out, where the next track starts (always shown: on the cue-out when the next track follows back to back; dragged or typed like the cue points) and the fades; a transition tried with another track, before or after this one, with the changes not saved yet; listen from anywhere, from the cue-in or the ending; drag the points or type them; Gap Killer and crossfade overrides; categories and weights, in a new category created on the spot if needed; labels, era, BPM, mood, sound code and the MusicBrainz details; analysis, file (codec, bitrate, sample rate, channels) and identification; plays; edit its tags; delete it | operator |
 | **Artists** | Artists and their names (search any name); rename, move a name to another artist or split it off, merge artists, mark artists similar, restrict an artist; the suggestions to review, and the MusicBrainz relationships lookup | operator |
 | **Clocks** | Each clock's slots, reordered by dragging (or with the keyboard), with their category, selection method, enforce-rules flag and separation overrides; whether the clock loops across hours; the hour (or the loop) drawn as it will sound, categories running short, an hour simulated | operator |
+| **Events** | Scheduled timed events: recurring on days of the week, by interval, or at a single date-time; exact time execution or inserted next in queue; play a track, pick from a category, connect to a relay stream, or switch the clock; enable/disable and test trigger ([Scheduled events](#scheduled-events)) | operator |
 | **Schedule** | The schedules (see [Schedules and periods](#schedules-and-periods)); for the one picked, the week, hour by hour, in station time: pick a clock, then paint hours, rectangles, whole days, an hour of every day or the whole week, optionally only the empty hours, or copy a day onto others (see [Painting the schedule](#painting-the-schedule)) | operator |
 | **Labels** | Create, rename, recolor, merge and delete labels, with their tracks | operator |
 | **Categories** | Create, rename, recolor and delete categories; the stations they are used on; their type (Song, Jingle, Ad, or the station's own, managed on the same page); the separation windows they override; whether the FX player offers them (liners, power intros, voice tracks); fill a category from a label | operator |
@@ -53,6 +54,22 @@ Under the decks on *On air*, operators and admins get a wall of pads; viewers se
 A **Stream Deck** or a MIDI console needs nothing special: map the buttons to `F1`–`F12` and the page keys, or learn the notes in the pads' dialogs and leave the deck in MIDI mode.
 
 The routes are in [API – Cart wall](api.md#routes) (`/cart-pages`, `/carts`, `/carts/{id}/play`).
+
+## Scheduled events
+
+On *Events*, operators and admins manage timed actions that fire on schedule:
+- **Triggers:** recurring at specific times on chosen days of the week, repeating at a fixed interval (e.g. hourly or half-hourly), or a single specific date and time.
+- **Timing modes:**
+  - `exact`: starts immediately at the trigger time. If music is playing on Deck A or B, the automation quickly fades or ducks down to play the scheduled item on time.
+  - `next`: smooth insertion; queues the item to play next as soon as the current track ends.
+- **Actions:**
+  - *Play track:* plays a specific file from the library (station ID, promo, liner).
+  - *Play category:* picks a track from a category according to rotation rules or least recently played.
+  - *Relay stream:* connects to an external Icecast or HTTP audio stream URL for a given duration, then returns to automation.
+  - *Switch clock:* changes the active rotation clockwheel immediately.
+- **Testing:** the *Run now* action tests an event immediately without waiting for its scheduled time.
+
+The routes are in [API – Scheduled events](api.md#routes) (`/stations/{id}/events`, `/stations/{id}/events/{id}/run-now`).
 
 ## Painting the schedule
 
