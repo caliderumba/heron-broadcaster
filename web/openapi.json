@@ -25952,7 +25952,9 @@
         "enum": [
           "system",
           "light",
-          "dark"
+          "dark",
+          "studio",
+          "high_contrast"
         ]
       },
       "TimeAnnouncementsSettings": {

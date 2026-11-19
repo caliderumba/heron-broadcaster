@@ -165,6 +165,8 @@ pub enum Theme {
     System,
     Light,
     Dark,
+    Studio,
+    HighContrast,
 }
 
 impl Theme {
@@ -173,6 +175,8 @@ impl Theme {
             Self::System => "system",
             Self::Light => "light",
             Self::Dark => "dark",
+            Self::Studio => "studio",
+            Self::HighContrast => "high_contrast",
         }
     }
 
@@ -180,6 +184,8 @@ impl Theme {
         match theme {
             "light" => Self::Light,
             "dark" => Self::Dark,
+            "studio" => Self::Studio,
+            "high_contrast" | "high-contrast" => Self::HighContrast,
             _ => Self::System,
         }
     }
@@ -754,6 +760,29 @@ pub async fn purge_sessions(pool: MySqlPool) {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn theme_parsing_and_serialization() {
+        assert_eq!(Theme::parse("system"), Theme::System);
+        assert_eq!(Theme::parse("light"), Theme::Light);
+        assert_eq!(Theme::parse("dark"), Theme::Dark);
+        assert_eq!(Theme::parse("studio"), Theme::Studio);
+        assert_eq!(Theme::parse("high_contrast"), Theme::HighContrast);
+        assert_eq!(Theme::parse("high-contrast"), Theme::HighContrast);
+        assert_eq!(Theme::parse("other"), Theme::System);
+
+        assert_eq!(Theme::System.as_str(), "system");
+        assert_eq!(Theme::Light.as_str(), "light");
+        assert_eq!(Theme::Dark.as_str(), "dark");
+        assert_eq!(Theme::Studio.as_str(), "studio");
+        assert_eq!(Theme::HighContrast.as_str(), "high_contrast");
+
+        assert_eq!(serde_json::to_string(&Theme::Studio).unwrap(), "\"studio\"");
+        assert_eq!(
+            serde_json::to_string(&Theme::HighContrast).unwrap(),
+            "\"high_contrast\""
+        );
+    }
 
     #[test]
     fn languages_are_tags() {

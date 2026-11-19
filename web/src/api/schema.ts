@@ -9153,7 +9153,7 @@ export interface components {
          * @description The web UI's theme.
          * @enum {string}
          */
-        Theme: "system" | "light" | "dark";
+        Theme: "system" | "light" | "dark" | "studio" | "high_contrast";
         TimeAnnouncementsSettings: {
             enabled: boolean;
             format: components["schemas"]["TimeFormat"];
