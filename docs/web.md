@@ -113,6 +113,17 @@ On *Campaigns*, operators and admins manage commercial sponsor campaigns and spo
 
 The routes are in [API – Advertising](api.md#routes) (`/stations/{id}/campaigns`, `/stations/{id}/campaigns/{id}/proof-of-play`).
 
+## Listener requests
+
+Heron allows audience interaction through a public request portal and an operator moderation console:
+
+- **Public request portal (`/request`, `/stations/{code}/request`):** listeners search the station's playable catalog, inspect track details, check repeat cooldown status, and submit song requests with their name and optional dedication without requiring an account.
+- **Moderation inbox (`/requests`):** on-air presenters and operators review incoming requests categorized by status (*All*, *Pending*, *Approved*, *Rejected*, *Played*, *Expired*).
+- **One-click enqueueing:** approving a request immediately enqueues the track into the station's playout queue with `source = request`, which the rotation engine uses to adjust track weight (`weights.request_factor`).
+- **Station policy settings:** operators configure cooldown periods between requests for the same track, daily listener limits, maximum queue depth, dedication message length, and portal branding.
+
+The routes are in [API – Listener requests](api.md#routes) (`/stations/{id}/requests`, `/public/requests`).
+
 ## Painting the schedule
 
 On *Schedule*, pick a clock (or *No clock*), then:

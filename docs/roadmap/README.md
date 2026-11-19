@@ -36,10 +36,10 @@ Progress is tracked here: the status column below and the acceptance checklists 
 | M21 | [Spoken time, weather and station IDs](m21-spoken-time.md) | M18, M19, M20 | Done (PR pending) |
 | M24 | [Advertising campaigns](m24-advertising.md) | M6, M20 | Done (PR pending) |
 | M25 | [Themes: studio mode and high contrast](m25-themes.md) | M18–M24, M5 | Done (PR pending) |
-| M23 | [Listener requests](m23-requests.md) | M4, M5, M6 | Planned |
+| M23 | [Listener requests](m23-requests.md) | M4, M5, M6 | Done (PR pending) |
 | M22 | [Reports and airplay](m22-reports.md) | M4, M5 | Planned |
 
-**M18–M25** turn the comparison with RadioDJ v1, SAM Broadcaster and RadioBOSS into work: the cart wall and its shortcuts, ducking and voice links, scheduled events, spoken time, advertising, themes, listener requests and reports. M18, M19, M20 and M21 have their work and PRs completed; M24 is in progress; the rest are planned; the order follows user prioritization and each file says what it depends on. M18, M19, M20 and M21 change a station's day the most; M24 brings commercial advertising campaigns and proof-of-play; M25 and M23 follow, with M22 completing the series.
+**M18–M25** turn the comparison with RadioDJ v1, SAM Broadcaster and RadioBOSS into work: the cart wall and its shortcuts, ducking and voice links, scheduled events, spoken time, advertising, themes, listener requests and reports. M18, M19, M20, M21, M23, M24 and M25 have their work and PRs completed; M22 completes the series following the user's prioritization.
 
 ## Dependency graph
 

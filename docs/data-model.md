@@ -200,6 +200,15 @@ See [M24](roadmap/m24-advertising.md).
 | `campaign_spots` | id, campaign_id (FK campaigns, ON DELETE CASCADE), track_id (FK tracks, ON DELETE CASCADE), weight (1..100), enabled, created_at |
 | `campaign_plays` | id, station_id, campaign_id (FK campaigns, ON DELETE CASCADE), spot_id, track_id (FK tracks), played_at, duration_ms |
 
+## Listener Requests
+
+See [M23](roadmap/m23-requests.md).
+
+| Table | Columns |
+|---|---|
+| `station_requests_settings` | station_id (PK, FK stations), enabled, cooldown_minutes, max_pending, daily_cap, allow_dedication, max_dedication_len, title, subtitle, updated_at |
+| `listener_requests` | id, station_id (FK stations), track_id (FK tracks), listener_name, dedication, status (`pending`, `approved`, `rejected`, `played`, `expired`), client_token, requested_at_unix_ms, reviewed_at_unix_ms, reviewed_by (FK users) |
+
 ## Relationships
 
 ```
@@ -230,4 +239,6 @@ stations 1──* scheduled_events
 stations 1──0..1 station_announcements
 stations 1──* campaigns 1──* campaign_spots *──1 tracks
 campaigns 1──* campaign_plays *──1 tracks
+stations 1──0..1 station_requests_settings
+stations 1──* listener_requests *──1 tracks
 ```
