@@ -32,6 +32,7 @@ export const PAGES: Page[] = [
   { path: "/migrate", label: "nav.import", icon: "upload", admin: true },
   { path: "/clocks", label: "nav.clocks", icon: "clock", section: "nav.programming", station: true },
   { path: "/schedule", label: "nav.schedule", icon: "calendar", station: true },
+  { path: "/events", label: "nav.events", icon: "bolt", station: true },
   { path: "/categories", label: "nav.categories", icon: "tag" },
   { path: "/restrictions", label: "nav.restrictions", icon: "ban" },
   { path: "/rotation-log", label: "nav.rotation", icon: "log", station: true },

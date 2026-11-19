@@ -17,6 +17,7 @@ import { Categories } from "./Categories";
 import { Clocks } from "./Clocks";
 import { Dashboard } from "./Dashboard";
 import { Eq } from "./Eq";
+import { Events } from "./Events";
 import { History } from "./History";
 import { Import } from "./Import";
 import { Labels } from "./Labels";
@@ -44,6 +45,7 @@ const PAGES: [string, () => ReactElement][] = [
   ["Clocks", () => <Clocks />],
   ["Dashboard", () => <Dashboard />],
   ["Eq", () => <Eq />],
+  ["Events", () => <Events />],
   ["History", () => <History />],
   ["Import", () => <Import />],
   ["Labels", () => <Labels />],

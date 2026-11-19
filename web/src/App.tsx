@@ -38,6 +38,7 @@ import { Import } from "./pages/Import";
 import { Review } from "./pages/Review";
 import { Rotation } from "./pages/Rotation";
 import { Schedule } from "./pages/Schedule";
+import { Events } from "./pages/Events";
 import { Settings } from "./pages/Settings";
 import { Stations } from "./pages/Stations";
 import { Statistics } from "./pages/Statistics";
@@ -128,6 +129,8 @@ function route(pathname: string): ReactNode {
       return <Clocks />;
     case "/schedule":
       return <Schedule />;
+    case "/events":
+      return <Events />;
     case "/restrictions":
       return <Restrictions />;
     case "/rotation-log":
