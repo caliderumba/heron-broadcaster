@@ -83,11 +83,11 @@ M24 adds first-class advertising campaign management: configuring client campaig
 
 ## Acceptance criteria
 
-- [ ] Campaigns can be created with client, start/end dates, daily and total targets, priority, and day/hour restrictions.
-- [ ] Audio spots can be assigned to campaigns with weights and enabled/disabled status.
-- [ ] Next-break assembler selects eligible campaign spots respecting flight dates, day/hour filters, target caps, and weights.
-- [ ] Scheduled events support `play_campaign` and `play_ad_block` action types.
-- [ ] Playouts are logged with timestamp, duration, station, campaign, and track ID for auditability.
-- [ ] Proof of play endpoint and Web UI report total plays, target fulfillment percentage, and itemized play logs.
-- [ ] Web UI allows managing campaigns, viewing progress bars, assigning spots, and inspecting proof of play.
-- [ ] All quality gates pass (`check-spdx.sh`, `cargo fmt`, `cargo clippy`, `cargo test`, `npm run typecheck`, `npm run test`, `npm run coverage`).
+- [x] Campaigns can be created with client, start/end dates, daily and total targets, priority, and day/hour restrictions.
+- [x] Audio spots can be assigned to campaigns with weights and enabled/disabled status.
+- [x] Next-break assembler selects eligible campaign spots respecting flight dates, day/hour filters, target caps, and weights.
+- [x] Scheduled events support `play_campaign` and `play_ad_block` action types.
+- [x] Playouts are logged with timestamp, duration, station, campaign, and track ID for auditability.
+- [x] Proof of play endpoint and Web UI report total plays, target fulfillment percentage, and itemized play logs.
+- [x] Web UI allows managing campaigns, viewing progress bars, assigning spots, and inspecting proof of play.
+- [x] All quality gates pass (`check-spdx.sh`, `cargo fmt`, `cargo clippy`, `cargo test`, `npm run typecheck`, `npm run test`, `npm run coverage`).
