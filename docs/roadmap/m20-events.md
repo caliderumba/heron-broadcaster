@@ -55,12 +55,12 @@ RadioDJ v1, RadioBOSS, and SAM Broadcaster all provide scheduled timed events: a
 
 ## Acceptance criteria
 
-- [ ] A scheduled event configured for an exact time triggers within 500 ms of the scheduled second.
-- [ ] In `exact` mode, automation music ducks/fades smoothly without abrupt digital clipping or dead air.
-- [ ] In `next` mode, the event track is inserted at the front of the queue and plays immediately once the current track completes.
-- [ ] Recurring events automatically calculate and update `next_run_at` upon execution.
-- [ ] `run-now` executes the event immediately from the API or UI.
-- [ ] Relay stream action connects to the remote audio URL, plays for the specified duration, and returns to automation cleanly.
-- [ ] Web UI displays scheduled events, allows adding/editing/deleting, toggling enabled state, and displays countdowns accurately.
-- [ ] Permissions: Operators and admins can manage and fire events; viewers have read-only access.
-- [ ] All quality gates pass (`check-spdx.sh`, `cargo fmt`, `cargo clippy`, `cargo test`, `npm run typecheck`, `npm run test`, `npm run coverage`, `npm run generate-api`).
+- [x] A scheduled event configured for an exact time triggers within 500 ms of the scheduled second.
+- [x] In `exact` mode, automation music ducks/fades smoothly without abrupt digital clipping or dead air.
+- [x] In `next` mode, the event track is inserted at the front of the queue and plays immediately once the current track completes.
+- [x] Recurring events automatically calculate and update `next_run_at` upon execution.
+- [x] `run-now` executes the event immediately from the API or UI.
+- [x] Relay stream action connects to the remote audio URL, plays for the specified duration, and returns to automation cleanly.
+- [x] Web UI displays scheduled events, allows adding/editing/deleting, toggling enabled state, and displays countdowns accurately.
+- [x] Permissions: Operators and admins can manage and fire events; viewers have read-only access.
+- [x] All quality gates pass (`check-spdx.sh`, `cargo fmt`, `cargo clippy`, `cargo test`, `npm run typecheck`, `npm run test`, `npm run coverage`, `npm run generate-api`).

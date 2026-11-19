@@ -77,6 +77,10 @@ export type BackupTest = Schemas["TestRecord"];
 export type NewBackupKey = Schemas["NewKey"];
 export type KeyConfirmed = Schemas["Confirmed"];
 export type RestoreReport = Schemas["RestoreReport"];
+export type ScheduledEvent = Schemas["ScheduledEvent"];
+export type TriggerType = Schemas["TriggerType"];
+export type TimingMode = Schemas["TimingMode"];
+export type ActionType = Schemas["ActionType"];
 
 export type TrackFilter = NonNullable<
   NonNullable<paths["/api/v1/tracks"]["get"]["parameters"]["query"]>["filter"]

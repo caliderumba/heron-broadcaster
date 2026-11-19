@@ -21,6 +21,7 @@ mod e2e;
 mod engine;
 mod eq;
 mod error;
+mod events;
 mod history;
 mod import;
 mod labels;

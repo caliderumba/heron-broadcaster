@@ -948,61 +948,57 @@ impl ImportRun<'_> {
         // new higher-quality file (e.g. WAV/FLAC content).
         if let (Some(&track_id), Some(duplicate_id)) =
             (replace_map.get(&file.id), file.duplicate_of_track_id)
+            && track_id == duplicate_id
         {
-            if track_id == duplicate_id {
-                let existing_path: Option<String> = sqlx::query_scalar(
-                    "SELECT path FROM tracks WHERE id = ? AND deleted_at IS NULL",
-                )
-                .bind(track_id)
-                .fetch_optional(pool)
-                .await?;
-                if let Some(existing_path) = existing_path {
-                    let to = LibraryPath::from_stored(existing_path);
-                    let operation = Operation {
-                        batch_id,
-                        subject: Subject::Replace(track_id),
-                        from: Origin::Staging(file.staged_path.clone()),
-                        to: to.clone(),
-                        retag: None,
-                        expected_stamp: None,
-                    };
-                    let outcome = journal::execute(pool, roots, operation).await;
-                    let (status, error) = match &outcome {
-                        Ok(_) => ("imported", None),
-                        Err(OpError::Database(_)) => ("importing", None),
-                        Err(OpError::SourceMissing) => {
-                            ("failed", Some("the file is gone".to_owned()))
-                        }
-                        Err(error) => ("ready", Some(error.to_string())),
-                    };
-                    if let Err(OpError::Database(error)) = outcome {
-                        return Err(error.into());
-                    }
-                    sqlx::query(
-                        "UPDATE staged_files SET status = ?, track_id = ?, error = ? WHERE id = ?",
-                    )
-                    .bind(status)
-                    .bind(Some(track_id))
-                    .bind(&error)
-                    .bind(file.id)
-                    .execute(pool)
+            let existing_path: Option<String> =
+                sqlx::query_scalar("SELECT path FROM tracks WHERE id = ? AND deleted_at IS NULL")
+                    .bind(track_id)
+                    .fetch_optional(pool)
                     .await?;
-                    match error {
-                        None => {
-                            report.done += 1;
-                            tracing::info!(
-                                from = %file.staged_path,
-                                %to,
-                                "replaced track {track_id} from the buffer zone"
-                            );
-                        }
-                        Some(reason) => report.skipped.push(SkippedFile {
-                            path: file.staged_path.to_string(),
-                            reason,
-                        }),
-                    }
-                    return Ok(());
+            if let Some(existing_path) = existing_path {
+                let to = LibraryPath::from_stored(existing_path);
+                let operation = Operation {
+                    batch_id,
+                    subject: Subject::Replace(track_id),
+                    from: Origin::Staging(file.staged_path.clone()),
+                    to: to.clone(),
+                    retag: None,
+                    expected_stamp: None,
+                };
+                let outcome = journal::execute(pool, roots, operation).await;
+                let (status, error) = match &outcome {
+                    Ok(_) => ("imported", None),
+                    Err(OpError::Database(_)) => ("importing", None),
+                    Err(OpError::SourceMissing) => ("failed", Some("the file is gone".to_owned())),
+                    Err(error) => ("ready", Some(error.to_string())),
+                };
+                if let Err(OpError::Database(error)) = outcome {
+                    return Err(error.into());
                 }
+                sqlx::query(
+                    "UPDATE staged_files SET status = ?, track_id = ?, error = ? WHERE id = ?",
+                )
+                .bind(status)
+                .bind(Some(track_id))
+                .bind(&error)
+                .bind(file.id)
+                .execute(pool)
+                .await?;
+                match error {
+                    None => {
+                        report.done += 1;
+                        tracing::info!(
+                            from = %file.staged_path,
+                            %to,
+                            "replaced track {track_id} from the buffer zone"
+                        );
+                    }
+                    Some(reason) => report.skipped.push(SkippedFile {
+                        path: file.staged_path.to_string(),
+                        reason,
+                    }),
+                }
+                return Ok(());
             }
         }
 

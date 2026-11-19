@@ -44,7 +44,7 @@ const MAX_CODE_LENGTH: usize = 32;
 
 /// The first path segments, under `/api/v1`, of what is per station.
 /// `settings` is per station only for the groups in [`STATION_SETTINGS`].
-const PER_STATION: [&str; 16] = [
+const PER_STATION: [&str; 17] = [
     "engine",
     "live",
     "playout",
@@ -55,6 +55,7 @@ const PER_STATION: [&str; 16] = [
     "schedule",
     "schedules",
     "rotation",
+    "events",
     "outputs",
     "webhooks",
     "webhook-deliveries",
@@ -350,7 +351,7 @@ impl Stations {
             tasks.push(tokio::spawn(Arc::clone(&queue).run()));
         }
         tracing::info!(station = %info.code, engine = %url, enabled = info.enabled, "station started");
-        Ok(Some(Arc::new(StationRuntime {
+        let runtime = Arc::new(StationRuntime {
             id: info.id,
             engine_url: url,
             info: RwLock::new(info),
@@ -360,7 +361,18 @@ impl Stations {
             eq_changes: broadcast::channel(16).0,
             agc_changes: broadcast::channel(16).0,
             tasks: Mutex::new(tasks),
-        })))
+        });
+        if runtime.info().enabled {
+            runtime
+                .tasks
+                .lock()
+                .unwrap_or_else(PoisonError::into_inner)
+                .push(tokio::spawn(crate::events::run_scheduler(
+                    self.pool.clone(),
+                    Arc::clone(&runtime),
+                )));
+        }
+        Ok(Some(runtime))
     }
 
     /// Restarts a station after it was enabled or disabled, starts a new

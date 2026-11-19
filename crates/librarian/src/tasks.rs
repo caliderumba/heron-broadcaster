@@ -204,14 +204,17 @@ impl TaskRunner {
             TaskRequest::MusicbrainzDetails { all } => {
                 json(musicbrainz::look_up(&self.pool, &self.musicbrainz()?, *all, None).await)
             }
-            TaskRequest::StagingImport { file_ids, replace_into } => json(
+            TaskRequest::StagingImport {
+                file_ids,
+                replace_into,
+            } => json(
                 staging::import(
                     &self.pool,
                     &self.roots,
                     &self.endpoints,
                     &settings,
                     file_ids,
-                    &replace_into,
+                    replace_into,
                 )
                 .await,
             ),
