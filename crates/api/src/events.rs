@@ -106,6 +106,8 @@ pub enum ActionType {
     PlayCategory,
     Relay,
     LoadClock,
+    AnnounceTime,
+    AnnounceWeather,
 }
 
 impl ActionType {
@@ -115,6 +117,8 @@ impl ActionType {
             Self::PlayCategory => "play_category",
             Self::Relay => "relay",
             Self::LoadClock => "load_clock",
+            Self::AnnounceTime => "announce_time",
+            Self::AnnounceWeather => "announce_weather",
         }
     }
 }
@@ -128,6 +132,8 @@ impl FromStr for ActionType {
             "play_category" => Ok(Self::PlayCategory),
             "relay" => Ok(Self::Relay),
             "load_clock" => Ok(Self::LoadClock),
+            "announce_time" => Ok(Self::AnnounceTime),
+            "announce_weather" => Ok(Self::AnnounceWeather),
             other => Err(ApiError::BadRequest(format!(
                 "invalid action type: {other}"
             ))),
@@ -781,6 +787,18 @@ pub async fn execute_event(
                 station_id = station.id(),
                 clock_id,
                 "scheduled load_clock action invoked"
+            );
+        }
+        ActionType::AnnounceTime => {
+            tracing::info!(
+                station_id = station.id(),
+                "scheduled announce_time action invoked"
+            );
+        }
+        ActionType::AnnounceWeather => {
+            tracing::info!(
+                station_id = station.id(),
+                "scheduled announce_weather action invoked"
             );
         }
     }

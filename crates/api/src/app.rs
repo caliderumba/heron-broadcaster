@@ -28,9 +28,10 @@ use crate::listeners::Collector;
 use crate::stations::Stations;
 use crate::webhooks::Webhooks;
 use crate::{
-    about, agc, artists, carts, categories, category_types, clocks, eq, events, history, import,
-    labels, librarian, listeners, live, medleys, outputs, player, public, restrictions, rotation,
-    schedules, selection, settings, staging, stations, tracks, users, voice_links, webhooks,
+    about, agc, announcements, artists, carts, categories, category_types, clocks, eq, events,
+    history, import, labels, librarian, listeners, live, medleys, outputs, player, public,
+    restrictions, rotation, schedules, selection, settings, staging, stations, tracks, users,
+    voice_links, webhooks,
 };
 
 pub const SERVICE: &str = "heron-api";
@@ -82,6 +83,7 @@ pub struct AppState {
         (name = "artists", description = "Artists, their names and similar artists"),
         (name = "rotation", description = "Clocks, the schedule, restrictions, the rotation log and simulations"),
         (name = "events", description = "Scheduled events: timed actions that fire on schedule"),
+        (name = "announcements", description = "Spoken time, weather and station announcements"),
         (name = "history", description = "What was played"),
         (name = "stations", description = "The stations, each with its own engine and programming"),
         (name = "settings", description = "Settings: shared ones, and each station's own"),
@@ -136,6 +138,7 @@ fn api() -> OpenApiRouter<AppState> {
         .merge(restrictions::router())
         .merge(rotation::router())
         .merge(events::router())
+        .merge(announcements::router())
         .merge(history::router())
         .merge(settings::router())
         .merge(eq::router())

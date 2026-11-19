@@ -8,6 +8,7 @@
 
 mod about;
 mod agc;
+mod announcements;
 mod app;
 mod artists;
 mod auth;
