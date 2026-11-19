@@ -29,6 +29,7 @@ import { Outputs } from "./Outputs";
 import { Playout } from "./Playout";
 import { QueuePage } from "./Queue";
 import { Requests } from "./Requests";
+import { Reports } from "./Reports";
 import { Restrictions } from "./Restrictions";
 import { Review } from "./Review";
 import { Rotation } from "./Rotation";
@@ -60,6 +61,7 @@ const PAGES: [string, () => ReactElement][] = [
   ["Playout", () => <Playout />],
   ["Queue", () => <QueuePage />],
   ["Requests", () => <Requests />],
+  ["Reports", () => <Reports />],
   ["Restrictions", () => <Restrictions />],
   ["Review", () => <Review />],
   ["Rotation", () => <Rotation />],

@@ -43,6 +43,7 @@ import { Announcements } from "./pages/Announcements";
 import { Campaigns } from "./pages/Campaigns";
 import { Requests } from "./pages/Requests";
 import { PublicRequest } from "./pages/PublicRequest";
+import { Reports } from "./pages/Reports";
 import { Settings } from "./pages/Settings";
 import { Stations } from "./pages/Stations";
 import { Statistics } from "./pages/Statistics";
@@ -123,6 +124,8 @@ function route(pathname: string): ReactNode {
       return <History />;
     case "/statistics":
       return <Statistics />;
+    case "/reports":
+      return <Reports />;
     case "/library":
       return <Library />;
     case "/import-music":

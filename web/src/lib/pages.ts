@@ -23,6 +23,7 @@ export const PAGES: Page[] = [
   { path: "/requests", label: "nav.requests", icon: "heart", station: true },
   { path: "/history", label: "nav.history", icon: "history", station: true },
   { path: "/statistics", label: "nav.statistics", icon: "chart", station: true },
+  { path: "/reports", label: "nav.reports", icon: "log", station: true },
   { path: "/library", label: "nav.tracks", icon: "library", section: "nav.library" },
   { path: "/import-music", label: "nav.buffer", icon: "upload" },
   { path: "/labels", label: "nav.labels", icon: "label" },
