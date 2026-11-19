@@ -59,6 +59,8 @@ function DisplayCard({
               { value: "system", label: <><Icon name="monitor" size={14} /> {t("account.system")}</> },
               { value: "light", label: <><Icon name="sun" size={14} /> {t("account.light")}</> },
               { value: "dark", label: <><Icon name="moon" size={14} /> {t("account.dark")}</> },
+              { value: "studio", label: <><Icon name="headphones" size={14} /> {t("account.studio")}</> },
+              { value: "high_contrast", label: <><Icon name="contrast" size={14} /> {t("account.highContrast")}</> },
             ]}
           />
         </Field>

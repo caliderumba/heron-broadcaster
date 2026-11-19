@@ -11,7 +11,12 @@ const KEY = "heron.theme";
 export function storedTheme(): Theme {
   try {
     const value = window.localStorage.getItem(KEY);
-    if (value === "light" || value === "dark") {
+    if (
+      value === "light" ||
+      value === "dark" ||
+      value === "studio" ||
+      value === "high_contrast"
+    ) {
       return value;
     }
   } catch {

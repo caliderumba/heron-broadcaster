@@ -37,7 +37,7 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
+  :root:not([data-theme]) {
     --bg: #121315;
     --surface: #1b1d20;
     --surface-2: #24272b;
@@ -58,6 +58,35 @@
     --fx: #e9b949;
     --wave: #7d838c;
     --shadow: 0 1px 2px rgb(0 0 0 / 40%);
+    color-scheme: dark;
+  }
+}
+
+@media (prefers-contrast: more) {
+  :root:not([data-theme]) {
+    --bg: #000000;
+    --surface: #0c0c0c;
+    --surface-2: #181818;
+    --border: #e0e0e0;
+    --fg: #ffffff;
+    --muted: #d0d0d0;
+    --accent: #00ffff;
+    --accent-fg: #000000;
+    --accent-soft: #00363a;
+    --good: #00ff66;
+    --warn: #ffff00;
+    --warn-soft: #333300;
+    --bad: #ff3333;
+    --bad-soft: #440000;
+    --on-air: #ff0000;
+    --deck-a: #00aaff;
+    --deck-b: #ff00ff;
+    --fx: #ffff00;
+    --wave: #a0a0a0;
+    --meter-low: #00ff66;
+    --meter-mid: #ffff00;
+    --meter-high: #ff0000;
+    --shadow: 0 0 0 1px #ffffff;
     color-scheme: dark;
   }
 }
@@ -84,6 +113,82 @@
   --wave: #7d838c;
   --shadow: 0 1px 2px rgb(0 0 0 / 40%);
   color-scheme: dark;
+}
+
+:root[data-theme="studio"] {
+  --bg: #07080a;
+  --surface: #0f1115;
+  --surface-2: #16191f;
+  --border: #232732;
+  --fg: #e2e4ea;
+  --muted: #828796;
+  --accent: #00d2b4;
+  --accent-fg: #051412;
+  --accent-soft: #08342c;
+  --good: #10b981;
+  --warn: #f59e0b;
+  --warn-soft: #382405;
+  --bad: #ff3838;
+  --bad-soft: #3d1212;
+  --on-air: #ff2a20;
+  --deck-a: #3b82f6;
+  --deck-b: #ec4899;
+  --fx: #f59e0b;
+  --wave: #64748b;
+  --meter-low: #10b981;
+  --meter-mid: #f59e0b;
+  --meter-high: #ff2a20;
+  --shadow: 0 1px 3px rgb(0 0 0 / 60%), 0 4px 16px rgb(0 0 0 / 40%);
+  color-scheme: dark;
+}
+
+:root[data-theme="high_contrast"],
+:root[data-theme="high-contrast"] {
+  --bg: #000000;
+  --surface: #0c0c0c;
+  --surface-2: #181818;
+  --border: #e0e0e0;
+  --fg: #ffffff;
+  --muted: #d0d0d0;
+  --accent: #00ffff;
+  --accent-fg: #000000;
+  --accent-soft: #00363a;
+  --good: #00ff66;
+  --warn: #ffff00;
+  --warn-soft: #333300;
+  --bad: #ff3333;
+  --bad-soft: #440000;
+  --on-air: #ff0000;
+  --deck-a: #00aaff;
+  --deck-b: #ff00ff;
+  --fx: #ffff00;
+  --wave: #a0a0a0;
+  --meter-low: #00ff66;
+  --meter-mid: #ffff00;
+  --meter-high: #ff0000;
+  --shadow: 0 0 0 1px #ffffff;
+  color-scheme: dark;
+}
+
+:root[data-theme="high_contrast"] input,
+:root[data-theme="high_contrast"] select,
+:root[data-theme="high_contrast"] textarea,
+:root[data-theme="high_contrast"] button,
+:root[data-theme="high_contrast"] .card,
+:root[data-theme="high_contrast"] .badge,
+:root[data-theme="high-contrast"] input,
+:root[data-theme="high-contrast"] select,
+:root[data-theme="high-contrast"] textarea,
+:root[data-theme="high-contrast"] button,
+:root[data-theme="high-contrast"] .card,
+:root[data-theme="high-contrast"] .badge {
+  border-color: var(--border);
+}
+
+:root[data-theme="high_contrast"] :focus-visible,
+:root[data-theme="high-contrast"] :focus-visible {
+  outline: 3px solid var(--accent) !important;
+  outline-offset: 2px !important;
 }
 
 * {

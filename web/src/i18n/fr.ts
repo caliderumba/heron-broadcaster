@@ -171,6 +171,8 @@ const fr = {
   "account.system": "Système",
   "account.light": "Clair",
   "account.dark": "Sombre",
+  "account.studio": "Studio",
+  "account.highContrast": "Contraste élevé",
   "account.language": "Langue",
   "account.systemLanguage": "Système ({language})",
   "account.fullWidth": "Utiliser toute la largeur de l’écran",

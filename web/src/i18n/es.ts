@@ -170,6 +170,8 @@ const es = {
   "account.system": "Sistema",
   "account.light": "Claro",
   "account.dark": "Oscuro",
+  "account.studio": "Estudio",
+  "account.highContrast": "Alto contraste",
   "account.language": "Idioma",
   "account.systemLanguage": "Sistema ({language})",
   "account.fullWidth": "Usar todo el ancho de la pantalla",

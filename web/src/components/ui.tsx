@@ -65,6 +65,9 @@ const ICONS = {
   download: "M12 4v12M7 11l5 5 5-5M4 20h16",
   chart: "M4 20V10M10 20V4M16 20v-7M22 20H2",
   link: "M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1",
+  headphones:
+    "M3 18v-6a9 9 0 0 1 18 0v6M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z",
+  contrast: "M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 18V4a8 8 0 0 1 0 16z",
 } as const;
 
 export type IconName = keyof typeof ICONS;

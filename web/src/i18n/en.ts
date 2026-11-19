@@ -168,6 +168,8 @@ const en = {
   "account.system": "System",
   "account.light": "Light",
   "account.dark": "Dark",
+  "account.studio": "Studio",
+  "account.highContrast": "High contrast",
   "account.language": "Language",
   "account.systemLanguage": "System ({language})",
   "account.fullWidth": "Use the whole width of the screen",

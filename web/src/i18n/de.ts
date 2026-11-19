@@ -170,6 +170,8 @@ const de = {
   "account.system": "System",
   "account.light": "Hell",
   "account.dark": "Dunkel",
+  "account.studio": "Studio",
+  "account.highContrast": "Hoher Kontrast",
   "account.language": "Sprache",
   "account.systemLanguage": "System ({language})",
   "account.fullWidth": "Die ganze Bildschirmbreite nutzen",
