@@ -20,6 +20,7 @@ export interface Page {
 export const PAGES: Page[] = [
   { path: "/", label: "nav.onAir", icon: "air", station: true },
   { path: "/queue", label: "nav.queue", icon: "queue", station: true },
+  { path: "/requests", label: "nav.requests", icon: "heart", station: true },
   { path: "/history", label: "nav.history", icon: "history", station: true },
   { path: "/statistics", label: "nav.statistics", icon: "chart", station: true },
   { path: "/library", label: "nav.tracks", icon: "library", section: "nav.library" },

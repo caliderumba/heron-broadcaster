@@ -41,6 +41,8 @@ import { Schedule } from "./pages/Schedule";
 import { Events } from "./pages/Events";
 import { Announcements } from "./pages/Announcements";
 import { Campaigns } from "./pages/Campaigns";
+import { Requests } from "./pages/Requests";
+import { PublicRequest } from "./pages/PublicRequest";
 import { Settings } from "./pages/Settings";
 import { Stations } from "./pages/Stations";
 import { Statistics } from "./pages/Statistics";
@@ -53,6 +55,10 @@ applyTheme(storedTheme());
 applyFullWidth(storedFullWidth());
 
 export function App() {
+  const { pathname } = useLocation();
+  const publicStationRequest = match("/stations/:code/request", pathname);
+  const isPublicRequest = pathname === "/request" || Boolean(publicStationRequest);
+
   const me = useMeQuery();
   const user = me.data;
   // Every page re-renders in the new language at once.
@@ -68,6 +74,10 @@ export function App() {
       stopLive();
     }
   }, [user]);
+
+  if (isPublicRequest) {
+    return <PublicRequest stationCode={publicStationRequest?.code} />;
+  }
 
   if (me.isPending) {
     return <Loading label={t("app.contacting")} />;
@@ -137,6 +147,10 @@ function route(pathname: string): ReactNode {
       return <Announcements />;
     case "/campaigns":
       return <Campaigns />;
+    case "/requests":
+      return <Requests />;
+    case "/request":
+      return <PublicRequest />;
     case "/restrictions":
       return <Restrictions />;
     case "/rotation-log":
