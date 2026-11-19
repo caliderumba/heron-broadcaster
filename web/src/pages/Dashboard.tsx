@@ -10,6 +10,7 @@ import { StereoMeter, LineMeter } from "../components/Meter";
 import { QueueList } from "../components/QueueList";
 import { TrackSearch } from "../components/TrackSearch";
 import { CartWall } from "../components/CartWall";
+import { VoiceRecorder } from "../components/VoiceRecorder";
 import { Card, ConfirmButton, Empty, Icon, Modal, PageHead } from "../components/ui";
 import { CategoryChips, type CategoryRef, useTrackCategories } from "../components/TrackCategories";
 import { type PlainKey, number, rich, t } from "../i18n";
@@ -55,6 +56,7 @@ export function Dashboard() {
   const levels = useLive((live) => live.levels);
   const canOperate = useCan("operator");
   const [fxOpen, setFxOpen] = useState(false);
+  const [voiceOpen, setVoiceOpen] = useState(false);
 
   const skip = useAction(() => done(api.POST("/api/v1/stations/{station_id}/player/skip", { params: { path: here() } })), { success: t("dashboard.skipped") });
   const pause = useAction(() => done(api.POST("/api/v1/stations/{station_id}/player/pause", { params: { path: here() } })));
@@ -82,6 +84,13 @@ export function Dashboard() {
           canOperate &&
           player && (
             <>
+              <button
+                type="button"
+                className="btn big"
+                onClick={() => setVoiceOpen(true)}
+              >
+                <Icon name="mic" /> {t("voiceLinks.recordVoice")}
+              </button>
               {player.paused ? (
                 <button
                   type="button"
@@ -204,6 +213,15 @@ export function Dashboard() {
       <Modal title={t("dashboard.fxTitle")} open={fxOpen} onClose={() => setFxOpen(false)}>
         <FxPicker play={(trackId) => playFx.mutate(trackId)} playing={playFx.isPending} />
       </Modal>
+
+      <VoiceRecorder
+        open={voiceOpen}
+        onClose={() => setVoiceOpen(false)}
+        onPlayOverIntro={(trackId) => {
+          playFx.mutate(trackId);
+          setVoiceOpen(false);
+        }}
+      />
     </>
   );
 }

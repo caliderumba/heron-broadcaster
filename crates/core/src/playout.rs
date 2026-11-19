@@ -172,6 +172,32 @@ impl Default for SilenceWatchdogSettings {
     }
 }
 
+/// Ducking settings: smoothly lowers music playing on Decks A and B while an
+/// effect, voice link or jingle plays on the FX player.
+#[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+#[serde(default, deny_unknown_fields)]
+pub struct DuckingSettings {
+    pub enabled: bool,
+    /// Gain reduction applied to music in dB (0 to -24 dB, default -9 dB).
+    pub depth_db: f64,
+    /// Time in ms to ramp down the music (50 to 1,000 ms, default 150 ms).
+    pub attack_ms: u32,
+    /// Time in ms to restore the music after FX ends (100 to 5,000 ms, default 600 ms).
+    pub release_ms: u32,
+}
+
+impl Default for DuckingSettings {
+    fn default() -> Self {
+        Self {
+            enabled: true,
+            depth_db: -9.0,
+            attack_ms: 150,
+            release_ms: 600,
+        }
+    }
+}
+
 /// Playout settings, stored under `playout` in the `settings` table and
 /// pushed to the engine.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Serialize, Deserialize)]
@@ -181,6 +207,7 @@ pub struct PlayoutSettings {
     pub crossfade: CrossfadeSettings,
     pub loudness: LoudnessSettings,
     pub silence_watchdog: SilenceWatchdogSettings,
+    pub ducking: DuckingSettings,
 }
 
 impl PlayoutSettings {
@@ -586,6 +613,10 @@ mod tests {
         assert_eq!(settings.crossfade.fade_out.curve, FadeCurve::SCurve);
         assert_eq!(settings.crossfade.fade_out.time_ms, 2_500);
         assert_eq!(settings.crossfade.min_track_ms, 20_000);
+        assert!(settings.ducking.enabled);
+        assert_eq!(settings.ducking.depth_db, -9.0);
+        assert_eq!(settings.ducking.attack_ms, 150);
+        assert_eq!(settings.ducking.release_ms, 600);
     }
 
     #[test]

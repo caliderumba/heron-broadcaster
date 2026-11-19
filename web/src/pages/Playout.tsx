@@ -3,7 +3,7 @@
 // Crossfade and loudness settings, with a live preview of a transition.
 
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { type PlayoutSettings, type TrackSummary, api, errorMessage, unwrap } from "../api";
 import { FadeEditor } from "../components/FadeEditor";
 import { TrackSearch, useDebounced } from "../components/TrackSearch";
@@ -59,10 +59,13 @@ function PlayoutForm({ saved }: Readonly<{ saved: PlayoutSettings }>) {
   );
   const crossfade = draft.crossfade;
   const loudness = draft.loudness;
+  const ducking = draft.ducking ?? { enabled: true, depth_db: -9, attack_ms: 150, release_ms: 600 };
   const setCrossfade = (changes: Partial<PlayoutSettings["crossfade"]>) =>
     setDraft((d) => ({ ...d, crossfade: { ...d.crossfade, ...changes } }));
   const setLoudness = (changes: Partial<PlayoutSettings["loudness"]>) =>
     setDraft((d) => ({ ...d, loudness: { ...d.loudness, ...changes } }));
+  const setDucking = (changes: Partial<PlayoutSettings["ducking"]>) =>
+    setDraft((d) => ({ ...d, ducking: { ...d.ducking, ...changes } }));
   const watchdog = draft.silence_watchdog;
   const setWatchdog = (changes: Partial<PlayoutSettings["silence_watchdog"]>) =>
     setDraft((d) => ({ ...d, silence_watchdog: { ...d.silence_watchdog, ...changes } }));
@@ -253,8 +256,172 @@ function PlayoutForm({ saved }: Readonly<{ saved: PlayoutSettings }>) {
             </p>
           </div>
         </Card>
+        <DuckingCard ducking={ducking} disabled={disabled} onChange={setDucking} />
       </div>
     </>
+  );
+}
+
+function DuckingCard({
+  ducking,
+  disabled,
+  onChange,
+}: Readonly<{
+  ducking: PlayoutSettings["ducking"];
+  disabled: boolean;
+  onChange: (changes: Partial<PlayoutSettings["ducking"]>) => void;
+}>) {
+  const [testing, setTesting] = useState(false);
+  const audioRef = useRef<{ ctx: AudioContext; stop: () => void } | null>(null);
+
+  useEffect(() => {
+    return () => {
+      audioRef.current?.stop();
+    };
+  }, []);
+
+  const stopTest = () => {
+    audioRef.current?.stop();
+    audioRef.current = null;
+    setTesting(false);
+  };
+
+  const startTest = () => {
+    stopTest();
+    try {
+      const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      const musicOsc = ctx.createOscillator();
+      musicOsc.type = "sine";
+      musicOsc.frequency.setValueAtTime(330, ctx.currentTime);
+
+      const musicGain = ctx.createGain();
+      musicGain.gain.setValueAtTime(0.2, ctx.currentTime);
+
+      musicOsc.connect(musicGain);
+      musicGain.connect(ctx.destination);
+
+      const voiceOsc = ctx.createOscillator();
+      voiceOsc.type = "triangle";
+      voiceOsc.frequency.setValueAtTime(660, ctx.currentTime);
+      const voiceGain = ctx.createGain();
+      voiceGain.gain.setValueAtTime(0, ctx.currentTime);
+      voiceOsc.connect(voiceGain);
+      voiceGain.connect(ctx.destination);
+
+      musicOsc.start();
+      voiceOsc.start();
+
+      const startMs = 400;
+      const voiceDurationMs = 1200;
+      const attackSec = ducking.attack_ms / 1000;
+      const releaseSec = ducking.release_ms / 1000;
+      const duckFactor = Math.pow(10, ducking.depth_db / 20);
+
+      const tDuckStart = ctx.currentTime + startMs / 1000;
+      const tDuckEnd = tDuckStart + attackSec;
+      const tVoiceEnd = tDuckStart + voiceDurationMs / 1000;
+      const tReleaseEnd = tVoiceEnd + releaseSec;
+
+      if (ducking.enabled) {
+        musicGain.gain.setValueAtTime(0.2, tDuckStart);
+        musicGain.gain.linearRampToValueAtTime(0.2 * duckFactor, tDuckEnd);
+        musicGain.gain.setValueAtTime(0.2 * duckFactor, tVoiceEnd);
+        musicGain.gain.linearRampToValueAtTime(0.2, tReleaseEnd);
+      }
+
+      voiceGain.gain.setValueAtTime(0, tDuckStart);
+      voiceGain.gain.linearRampToValueAtTime(0.25, tDuckStart + 0.05);
+      voiceGain.gain.setValueAtTime(0.25, tVoiceEnd - 0.05);
+      voiceGain.gain.linearRampToValueAtTime(0, tVoiceEnd);
+
+      const timer = setTimeout(() => {
+        stopTest();
+      }, (startMs + voiceDurationMs + ducking.release_ms + 300));
+
+      const stop = () => {
+        clearTimeout(timer);
+        try {
+          musicOsc.stop();
+          voiceOsc.stop();
+          ctx.close();
+        } catch {
+          // ignore already stopped
+        }
+      };
+
+      audioRef.current = { ctx, stop };
+      setTesting(true);
+    } catch {
+      setTesting(false);
+    }
+  };
+
+  return (
+    <Card
+      title={t("playout.voiceOverMusic")}
+      actions={
+        <button
+          type="button"
+          className="btn small"
+          onClick={testing ? stopTest : startTest}
+        >
+          <Icon name={testing ? "stop" : "play"} size={14} />{" "}
+          {testing ? t("playout.stopTest") : t("playout.testDucking")}
+        </button>
+      }
+    >
+      <div className="stack">
+        <label className="check">
+          <input
+            type="checkbox"
+            checked={ducking.enabled}
+            disabled={disabled}
+            onChange={(event) => onChange({ enabled: event.target.checked })}
+          />{" "}
+          {t("playout.duckingCheck")}
+        </label>
+        <div className="form-grid">
+          <Field label={t("playout.duckingDepth")} hint={t("playout.duckingDepthHint")}>
+            <NumberInput
+              value={ducking.depth_db}
+              min={-24}
+              max={0}
+              step={0.5}
+              suffix="dB"
+              disabled={disabled || !ducking.enabled}
+              onChange={(depth_db) => onChange({ depth_db })}
+            />
+          </Field>
+          <Field label={t("playout.duckingAttack")} hint={t("playout.duckingAttackHint")}>
+            <NumberInput
+              value={ducking.attack_ms}
+              min={50}
+              max={1000}
+              step={10}
+              suffix="ms"
+              disabled={disabled || !ducking.enabled}
+              onChange={(attack_ms) => onChange({ attack_ms })}
+            />
+          </Field>
+          <Field label={t("playout.duckingRelease")} hint={t("playout.duckingReleaseHint")}>
+            <NumberInput
+              value={ducking.release_ms}
+              min={100}
+              max={5000}
+              step={50}
+              suffix="ms"
+              disabled={disabled || !ducking.enabled}
+              onChange={(release_ms) => onChange({ release_ms })}
+            />
+          </Field>
+        </div>
+        <p className="muted small" style={{ margin: 0 }}>
+          {t("playout.duckingDescription")}
+        </p>
+      </div>
+    </Card>
   );
 }
 

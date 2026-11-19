@@ -347,6 +347,11 @@ impl Client {
         let value = response.json().await.unwrap_or(Value::Null);
         (status, value)
     }
+
+    /// Uploads raw binary body without extra headers.
+    async fn post_raw(&self, path: &str, bytes: Vec<u8>) -> (StatusCode, Value) {
+        self.post_bytes(path, bytes, None).await
+    }
 }
 
 /// Polls `check` until it returns something, for at most `timeout`.
@@ -1157,6 +1162,7 @@ async fn library_tracks_overrides_and_categories() {
         .await;
     assert_eq!(status, StatusCode::CREATED);
     assert_eq!(category["fx_player"], false);
+    assert_eq!(category["ducks_music"], true);
     let (status, duplicate) = admin
         .send(Method::POST, "/categories", json!({"name": "Gold"}))
         .await;
@@ -1165,11 +1171,12 @@ async fn library_tracks_overrides_and_categories() {
         .send(
             Method::POST,
             "/categories",
-            json!({"name": "Liner cap", "fx_player": true}),
+            json!({"name": "Liner cap", "fx_player": true, "ducks_music": false}),
         )
         .await;
     assert_eq!(status, StatusCode::CREATED, "{liners}");
     assert_eq!(liners["fx_player"], true);
+    assert_eq!(liners["ducks_music"], false);
     assert_eq!(liners["type_id"], Value::Null);
 
     // Category types: Song, Jingle and Ad, and the station's own.
@@ -7155,6 +7162,141 @@ async fn cart_wall_pages_and_pads() {
         s2_pages_after[0]["carts"][0]["label"],
         json!("Station 2 Drop")
     );
+
+    station.stop().await;
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn voice_links_and_ducking_settings_round_trip() {
+    let Some(station) = Station::start().await else {
+        return;
+    };
+    let pool = &station.db.pool;
+    let admin = station.signed_in("admin").await;
+    let operator = station.signed_in("operator").await;
+    let viewer = station.signed_in("viewer").await;
+
+    // 1. Playout settings round-trip with ducking
+    let settings = admin.get("/settings/playout").await;
+    assert_eq!(settings["ducking"]["enabled"], true);
+    assert_eq!(settings["ducking"]["depth_db"], -9.0);
+    assert_eq!(settings["ducking"]["attack_ms"], 150);
+    assert_eq!(settings["ducking"]["release_ms"], 600);
+
+    let (status, updated) = admin
+        .send(
+            Method::PUT,
+            "/settings/playout",
+            json!({
+                "crossfade": settings["crossfade"],
+                "loudness": settings["loudness"],
+                "silence_watchdog": settings["silence_watchdog"],
+                "ducking": {
+                    "enabled": true,
+                    "depth_db": -12.0,
+                    "attack_ms": 120,
+                    "release_ms": 450
+                }
+            }),
+        )
+        .await;
+    assert_eq!(status, StatusCode::OK, "{updated}");
+    assert_eq!(updated["ducking"]["depth_db"], -12.0);
+    assert_eq!(updated["ducking"]["attack_ms"], 120);
+    assert_eq!(updated["ducking"]["release_ms"], 450);
+
+    // 2. Category ducks_music flag round-trip
+    let (status, music_bed_cat) = admin
+        .send(
+            Method::POST,
+            "/categories",
+            json!({
+                "name": "Soundbeds",
+                "ducks_music": false,
+                "fx_player": true
+            }),
+        )
+        .await;
+    assert_eq!(status, StatusCode::CREATED, "{music_bed_cat}");
+    assert_eq!(music_bed_cat["ducks_music"], false);
+
+    // 3. Voice link permissions & validation
+    // Empty body rejected
+    let (status, _) = operator
+        .post_raw("/stations/1/voice-links", Vec::new())
+        .await;
+    assert_eq!(status, StatusCode::BAD_REQUEST);
+
+    // Viewer forbidden
+    let (status, _) = viewer
+        .post_raw("/stations/1/voice-links", vec![1, 2, 3])
+        .await;
+    assert_eq!(status, StatusCode::FORBIDDEN);
+
+    // 4. Generate audio take (WAV tone)
+    let mut take_bytes = Vec::new();
+    {
+        let spec = hound::WavSpec {
+            channels: 2,
+            sample_rate: 48000,
+            bits_per_sample: 16,
+            sample_format: hound::SampleFormat::Int,
+        };
+        let mut writer =
+            hound::WavWriter::new(std::io::Cursor::new(&mut take_bytes), spec).unwrap();
+        for n in 0..24000 {
+            let s = ((n as f32 * 0.05).sin() * 10000.0) as i16;
+            writer.write_sample(s).unwrap();
+            writer.write_sample(s).unwrap();
+        }
+        writer.finalize().unwrap();
+    }
+
+    // 5. Upload take as operator
+    let (status, task) = operator
+        .post_raw("/stations/1/voice-links", take_bytes)
+        .await;
+    assert_eq!(status, StatusCode::ACCEPTED, "{task}");
+    assert_eq!(task["request"]["kind"], "voice_link_import");
+    let task_id = task["id"].as_u64().unwrap();
+    let source_path = task["request"]["source_path"].as_str().unwrap().to_owned();
+
+    // Verify take was staged
+    assert!(station.staging.path().join(&source_path).exists());
+
+    // 6. Run heron-librarian task
+    let roots = heron_librarian::journal::Roots {
+        library: station.library.path().to_path_buf(),
+        incoming: station.library.path().join(".incoming"),
+        staging: station.staging.path().to_path_buf(),
+    };
+    let librarian = heron_librarian::tasks::TaskRunner::new(
+        pool.clone(),
+        roots,
+        heron_librarian::identify::Endpoints::default(),
+    );
+    assert!(librarian.run_next().await.unwrap());
+
+    // 7. Verify finished task
+    let done = operator.get(&format!("/library/tasks/{task_id}")).await;
+    assert_eq!(done["status"], "done", "{done}");
+    let track_id = done["voice_link"]["track_id"].as_u64().unwrap();
+
+    // 8. Staged take was cleaned up (no orphan files)
+    assert!(!station.staging.path().join(&source_path).exists());
+
+    // 9. Verify created track and category
+    let track = operator.get(&format!("/tracks/{track_id}")).await;
+    assert_eq!(track["artist"], "operator");
+    assert!(track["title"].as_str().unwrap().starts_with("Voice link"));
+    let cats = track["categories"].as_array().unwrap();
+    assert_eq!(cats.len(), 1);
+    let cat = operator
+        .get(&format!("/categories/{}", cats[0]["category_id"]))
+        .await;
+    assert_eq!(cat["name"], "Voice track");
+    assert_eq!(cat["fx_player"], true);
+    assert_eq!(cat["ducks_music"], true);
 
     station.stop().await;
 }

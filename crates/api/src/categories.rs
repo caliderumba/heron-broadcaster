@@ -39,6 +39,8 @@ pub struct Category {
     /// Liners, power intros, voice tracks: the FX player's picker opens on
     /// these categories. Clocks still call them like any other.
     pub fx_player: bool,
+    /// Whether playing tracks in this category ducks the music on main decks (default true).
+    pub ducks_music: bool,
     pub tracks: i64,
     /// How long its tracks last together, in ms: what is played of each
     /// (cue-in to cue-out, overrides applied), or the file's length for a
@@ -58,6 +60,7 @@ type CategoryRow = (
     Option<u64>,
     Option<String>,
     bool,
+    bool,
     i64,
     i64,
     Option<String>,
@@ -65,7 +68,19 @@ type CategoryRow = (
 );
 
 fn category(
-    (id, name, color, type_id, type_name, fx_player, tracks, total_ms, separation, stations): CategoryRow,
+    (
+        id,
+        name,
+        color,
+        type_id,
+        type_name,
+        fx_player,
+        ducks_music,
+        tracks,
+        total_ms,
+        separation,
+        stations,
+    ): CategoryRow,
 ) -> Category {
     Category {
         id,
@@ -74,6 +89,7 @@ fn category(
         type_id,
         type_name,
         fx_player,
+        ducks_music,
         tracks,
         total_ms,
         separation: crate::rotation::overrides(separation.as_deref()),
@@ -97,6 +113,9 @@ pub struct CategoryInput {
     /// Not for the FX player by default.
     #[serde(default)]
     pub fx_player: bool,
+    /// Whether playing tracks in this category ducks the music on main decks (default true).
+    #[serde(default = "default_true")]
+    pub ducks_music: bool,
     /// None overridden by default.
     #[serde(default)]
     pub separation: SeparationOverrides,
@@ -104,6 +123,10 @@ pub struct CategoryInput {
     /// when left out on creation, kept when left out on a change.
     #[serde(default)]
     pub station_ids: Option<Vec<u64>>,
+}
+
+const fn default_true() -> bool {
+    true
 }
 
 #[derive(Debug, Deserialize, IntoParams)]
@@ -155,7 +178,7 @@ pub fn check_color(color: Option<&str>) -> ApiResult<Option<String>> {
 /// `total_ms` follows `TrackPlayout::with_overrides`: the analyzed cue
 /// points (the whole file when not analyzed or the Gap Killer is off), then
 /// the cue overrides, the cue-out kept within the file.
-const SELECT: &str = "SELECT c.id, c.name, c.color, c.type_id, ct.name, c.fx_player,
+const SELECT: &str = "SELECT c.id, c.name, c.color, c.type_id, ct.name, c.fx_player, c.ducks_music,
            (SELECT COUNT(*) FROM track_categories tc JOIN tracks t ON t.id = tc.track_id
             WHERE tc.category_id = c.id AND t.deleted_at IS NULL) AS tracks,
            (SELECT CAST(COALESCE(SUM(GREATEST(0,
@@ -241,12 +264,13 @@ async fn create_category(
     check_stations(&state, &station_ids)?;
     let mut tx = state.pool.begin().await?;
     let id = sqlx::query(
-        "INSERT INTO categories (name, color, type_id, fx_player, separation) VALUES (?, ?, ?, ?, ?)",
+        "INSERT INTO categories (name, color, type_id, fx_player, ducks_music, separation) VALUES (?, ?, ?, ?, ?, ?)",
     )
     .bind(name)
     .bind(color)
     .bind(input.type_id)
     .bind(input.fx_player)
+    .bind(input.ducks_music)
     .bind(separation)
     .execute(&mut *tx)
     .await
@@ -297,13 +321,14 @@ async fn update_category(
     }
     let mut tx = state.pool.begin().await?;
     sqlx::query(
-        "UPDATE categories SET name = ?, color = ?, type_id = ?, fx_player = ?, separation = ?
+        "UPDATE categories SET name = ?, color = ?, type_id = ?, fx_player = ?, ducks_music = ?, separation = ?
          WHERE id = ?",
     )
     .bind(name)
     .bind(color)
     .bind(input.type_id)
     .bind(input.fx_player)
+    .bind(input.ducks_music)
     .bind(separation)
     .bind(id)
     .execute(&mut *tx)
@@ -482,6 +507,7 @@ mod tests {
             color: color.map(str::to_owned),
             type_id: None,
             fx_player: false,
+            ducks_music: true,
             separation: SeparationOverrides::default(),
             station_ids: None,
         };

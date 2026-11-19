@@ -6,6 +6,7 @@ What changed in each release of Heron. Before upgrading, read the release's note
 
 ### Added
 
+- **Live ducking and voice links** (M19): the audio engine smoothly lowers the music playing on Decks A and B while an effect, voice link or jingle plays on the FX player, over an attack ramp down to the configured depth, and restores it over the release ramp. Categories can opt out of ducking (for music beds and ambient effects). Playout settings provide depth, attack and release controls in a new *Voice over music* card in *Crossfade & loudness*. Operators can record voice links through the browser microphone while monitoring the on-air track in headphones, file them into the *Voice track* category, and play them over the track's intro or trigger them from cart pads ([Web UI – Voice links](docs/web.md#voice-links-and-live-ducking)).
 - **Cart wall and studio shortcuts** (M18): a wall of pads under the decks on the *On air* page that fires liners, IDs, drops and ads through the FX player. Each station has named pages with up to 12 pads; pads can be recoloured, renamed and reordered. Function keys `F1`–`F12` fire pads, `Shift+F1`–`F12` or `PageUp`/`PageDown` switch pages, `Esc` fades the FX out while the panel has focus, and Web MIDI maps hardware controllers per browser ([Web UI – On air](docs/web.md#cart-wall)).
 
 ### Changed

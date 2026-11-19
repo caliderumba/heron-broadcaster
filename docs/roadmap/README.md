@@ -31,15 +31,15 @@ Progress is tracked here: the status column below and the acceptance checklists 
 | M16 | [Status bar](m16-status-bar.md) | M5, M7b, M13 | Done ([#58](https://github.com/dehy/heron-broadcaster/pull/58)) |
 | M17 | [About page](m17-about-page.md) | M5, M13, M16 | Done ([#62](https://github.com/dehy/heron-broadcaster/pull/62)) |
 | M18 | [Cart wall & studio shortcuts](m18-cart-wall.md) | M4, M5 | Done (PR pending) |
-| M19 | [Ducking and voice links](m19-ducking-voice.md) | M2, M18 | Planned |
-| M20 | [Scheduled events](m20-events.md) | M2, M4, M6, M18 | In progress (`m20-events`: docs) |
-| M21 | [Spoken time, weather and station IDs](m21-spoken-time.md) | M18, M19, M20 | Planned |
+| M19 | [Ducking and voice links](m19-ducking-voice.md) | M2, M18 | Done (PR pending) |
+| M20 | [Scheduled events](m20-events.md) | M2, M4, M6, M18 | Done (PR pending) |
+| M21 | [Spoken time, weather and station IDs](m21-spoken-time.md) | M18, M19, M20 | In progress (`m21-spoken-time`: docs) |
 | M22 | [Reports and airplay](m22-reports.md) | M4, M5 | Planned |
 | M23 | [Listener requests](m23-requests.md) | M4, M5, M6 | Planned |
 | M24 | [Advertising campaigns](m24-advertising.md) | M6, M20, M22 | Planned |
 | M25 | [Themes: studio mode and high contrast](m25-themes.md) | M18–M24, M5 | Planned |
 
-**M18–M25** turn the comparison with RadioDJ v1, SAM Broadcaster and RadioBOSS into work: the cart wall and its shortcuts, ducking and voice links, scheduled events, spoken time, reports, listener requests, advertising and the studio's themes. M18 has its PR pending; M19 is planned; M20 is in progress; the rest are planned, not started; the order is the recommended one and each file says what it depends on. M18, M19 and M20 change a station's day the most; M24 can wait for the first advertising contract; M25 closes with what the studio screens need.
+**M18–M25** turn the comparison with RadioDJ v1, SAM Broadcaster and RadioBOSS into work: the cart wall and its shortcuts, ducking and voice links, scheduled events, spoken time, reports, listener requests, advertising and the studio's themes. M18, M19 and M20 have their work and PRs completed; M21 is in progress; the rest are planned, not started; the order is the recommended one and each file says what it depends on. M18, M19 and M20 change a station's day the most; M24 can wait for the first advertising contract; M25 closes with what the studio screens need.
 
 ## Dependency graph
 

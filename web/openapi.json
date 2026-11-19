@@ -11406,6 +11406,61 @@
         }
       }
     },
+    "/api/v1/stations/{station_id}/voice-links": {
+      "post": {
+        "tags": [
+          "library"
+        ],
+        "summary": "Uploads an audio take of a recorded voice link (WebM, Ogg, WAV, etc.).\nheron-librarian converts it with FFmpeg, tags it (title with date/time,\nartist = operator), and files it into the station's \"Voice track\" category.\nOperators and admins.",
+        "operationId": "upload_voice_link_on_station",
+        "parameters": [
+          {
+            "name": "station_id",
+            "in": "path",
+            "description": "The station's ID",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/octet-stream": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "format": "int32",
+                  "minimum": 0
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LibraryTask"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/stations/{station_id}/webhook-deliveries/{id}/retry": {
       "post": {
         "tags": [
@@ -13285,6 +13340,50 @@
         }
       }
     },
+    "/api/v1/voice-links": {
+      "post": {
+        "tags": [
+          "library"
+        ],
+        "summary": "Uploads an audio take of a recorded voice link (WebM, Ogg, WAV, etc.).\nheron-librarian converts it with FFmpeg, tags it (title with date/time,\nartist = operator), and files it into the station's \"Voice track\" category.\nOperators and admins.",
+        "operationId": "upload_voice_link",
+        "requestBody": {
+          "content": {
+            "application/octet-stream": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "format": "int32",
+                  "minimum": 0
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LibraryTask"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/webhook-deliveries/{id}/retry": {
       "post": {
         "tags": [
@@ -15016,6 +15115,7 @@
           "id",
           "name",
           "fx_player",
+          "ducks_music",
           "tracks",
           "total_ms",
           "separation",
@@ -15028,6 +15128,10 @@
               "null"
             ],
             "description": "`#rrggbb`."
+          },
+          "ducks_music": {
+            "type": "boolean",
+            "description": "Whether playing tracks in this category ducks the music on main decks (default true)."
           },
           "fx_player": {
             "type": "boolean",
@@ -15111,6 +15215,10 @@
               "null"
             ],
             "description": "`#rrggbb`, or none."
+          },
+          "ducks_music": {
+            "type": "boolean",
+            "description": "Whether playing tracks in this category ducks the music on main decks (default true)."
           },
           "fx_player": {
             "type": "boolean",
@@ -16187,6 +16295,37 @@
         },
         "additionalProperties": false
       },
+      "DuckingSettings": {
+        "type": "object",
+        "description": "Ducking settings: smoothly lowers music playing on Decks A and B while an\neffect, voice link or jingle plays on the FX player.",
+        "properties": {
+          "attack_ms": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Time in ms to ramp down the music (50 to 1,000 ms, default 150 ms).",
+            "default": 150,
+            "minimum": 0
+          },
+          "depth_db": {
+            "type": "number",
+            "format": "double",
+            "description": "Gain reduction applied to music in dB (0 to -24 dB, default -9 dB).",
+            "default": -9.0
+          },
+          "enabled": {
+            "type": "boolean",
+            "default": true
+          },
+          "release_ms": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Time in ms to restore the music after FX ends (100 to 5,000 ms, default 600 ms).",
+            "default": 600,
+            "minimum": 0
+          }
+        },
+        "additionalProperties": false
+      },
       "EarlierKey": {
         "type": "object",
         "required": [
@@ -17234,6 +17373,10 @@
           "disable_tracks": {
             "type": "boolean",
             "description": "Its tracks are disabled: rotation never picks them."
+          },
+          "ducks_music": {
+            "type": "boolean",
+            "description": "Whether playing tracks in this category ducks the music on main decks (default true)."
           },
           "fx_player": {
             "type": "boolean",
@@ -18442,6 +18585,17 @@
           },
           "status": {
             "$ref": "#/components/schemas/TaskStatus"
+          },
+          "voice_link": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/VoiceLinkReport",
+                "description": "What importing a voice link recording produced."
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         }
       },
@@ -20222,6 +20376,15 @@
               "min_track_ms": 20000,
               "mode": "auto",
               "skip_fade_ms": 1000
+            }
+          },
+          "ducking": {
+            "$ref": "#/components/schemas/DuckingSettings",
+            "default": {
+              "attack_ms": 150,
+              "depth_db": -9.0,
+              "enabled": true,
+              "release_ms": 600
             }
           },
           "loudness": {
@@ -23595,6 +23758,35 @@
                 }
               }
             }
+          },
+          {
+            "type": "object",
+            "description": "Converts, tags and files an uploaded voice link take into the library.",
+            "required": [
+              "station_id",
+              "source_path",
+              "operator",
+              "kind"
+            ],
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "voice_link_import"
+                ]
+              },
+              "operator": {
+                "type": "string"
+              },
+              "source_path": {
+                "type": "string"
+              },
+              "station_id": {
+                "type": "integer",
+                "format": "int64",
+                "minimum": 0
+              }
+            }
           }
         ],
         "description": "A task, as stored in `library_tasks.params`. The tag is also its `kind`."
@@ -25390,6 +25582,34 @@
             }
           }
         ]
+      },
+      "VoiceLinkReport": {
+        "type": "object",
+        "description": "What importing a voice link recording produced.",
+        "required": [
+          "track_id",
+          "path",
+          "title",
+          "duration_ms"
+        ],
+        "properties": {
+          "duration_ms": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "path": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "track_id": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          }
+        }
       },
       "Waveform": {
         "type": "object",

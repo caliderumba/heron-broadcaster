@@ -21,7 +21,7 @@ use crate::identify::{Endpoints, Identifier};
 use crate::journal::Roots;
 use crate::layout::Layout;
 use crate::review::{self, Choice};
-use crate::{edit, import, medley, musicbrainz, organize, relations, staging, trash};
+use crate::{edit, import, medley, musicbrainz, organize, relations, staging, trash, voice_link};
 
 /// Wait between looks at the table when there is nothing to do.
 const POLL: Duration = Duration::from_secs(1);
@@ -230,6 +230,14 @@ impl TaskRunner {
                 let report = medley::render(&self.pool, &self.roots, *medley_id).await?;
                 serde_json::to_value(report).map_err(|error| error.to_string())
             }
+            TaskRequest::VoiceLinkImport {
+                station_id,
+                source_path,
+                operator,
+            } => json(
+                voice_link::import(&self.pool, &self.roots, *station_id, source_path, operator)
+                    .await,
+            ),
         }
     }
 

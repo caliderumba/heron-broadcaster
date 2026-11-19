@@ -30,7 +30,7 @@ use crate::webhooks::Webhooks;
 use crate::{
     about, agc, artists, carts, categories, category_types, clocks, eq, events, history, import,
     labels, librarian, listeners, live, medleys, outputs, player, public, restrictions, rotation,
-    schedules, selection, settings, staging, stations, tracks, users, webhooks,
+    schedules, selection, settings, staging, stations, tracks, users, voice_links, webhooks,
 };
 
 pub const SERVICE: &str = "heron-api";
@@ -126,6 +126,7 @@ fn api() -> OpenApiRouter<AppState> {
         .merge(import::router())
         .merge(staging::router())
         .merge(carts::router())
+        .merge(voice_links::router())
         .merge(categories::router())
         .merge(category_types::router())
         .merge(medleys::router())

@@ -62,6 +62,7 @@ const PER_STATION: [&str; 17] = [
     "listeners",
     "cart-pages",
     "carts",
+    "voice-links",
 ];
 /// The settings groups served per station (`/settings/{group}`).
 const STATION_SETTINGS: [&str; 7] = [

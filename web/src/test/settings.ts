@@ -181,5 +181,11 @@ export const PLAYOUT_DEFAULTS = {
   "silence_watchdog": {
     "enabled": true,
     "timeout_ms": 20000
+  },
+  "ducking": {
+    "enabled": true,
+    "depth_db": -9,
+    "attack_ms": 150,
+    "release_ms": 600
   }
 } as PlayoutSettings;

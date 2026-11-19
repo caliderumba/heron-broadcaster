@@ -363,6 +363,7 @@ pub fn track_from_proto(track: pb::Track) -> Result<TrackRequest, Status> {
         no_metadata: track.no_metadata,
         over_intro: track.over_intro,
         intro_ms: track.intro_ms,
+        ducks_music: track.ducks_music.unwrap_or(true),
     })
 }
 
@@ -389,6 +390,7 @@ fn track_to_proto(track: TrackRequest) -> pb::Track {
         no_metadata: track.no_metadata,
         over_intro: track.over_intro,
         intro_ms: track.intro_ms,
+        ducks_music: Some(track.ducks_music),
     }
 }
 
@@ -577,6 +579,7 @@ mod tests {
             no_metadata: false,
             over_intro: false,
             intro_ms: None,
+            ducks_music: Some(true),
         };
         let back = track_to_proto(track_from_proto(original.clone()).unwrap());
         assert_eq!(back, original);

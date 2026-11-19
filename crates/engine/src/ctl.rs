@@ -414,6 +414,7 @@ fn prepare(library_dir: &Path, file: &Path) -> anyhow::Result<pb::Track> {
         no_metadata: false,
         over_intro: false,
         intro_ms: None,
+        ducks_music: Some(true),
     })
 }
 

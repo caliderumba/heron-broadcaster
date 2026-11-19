@@ -280,6 +280,7 @@ const TABLES: &[Table] = &[
             Plain("color"),
             Plain("type_id"),
             Plain("fx_player"),
+            Plain("ducks_music"),
             Json("separation"),
         ],
         Mode::Upsert,

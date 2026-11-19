@@ -69,6 +69,12 @@ pub enum TaskRequest {
         medley_id: u64,
         parts: Vec<crate::medley::Part>,
     },
+    /// Converts, tags and files an uploaded voice link take into the library.
+    VoiceLinkImport {
+        station_id: u64,
+        source_path: String,
+        operator: String,
+    },
 }
 
 impl TaskRequest {
@@ -87,6 +93,7 @@ impl TaskRequest {
             Self::EmptyTrash => "empty_trash",
             Self::RenderMedley { .. } => "render_medley",
             Self::PreviewMedley { .. } => "preview_medley",
+            Self::VoiceLinkImport { .. } => "voice_link_import",
         }
     }
 }
@@ -375,6 +382,16 @@ pub struct RelationsReport {
     pub suggestions: u64,
     /// Lookups that failed (tried again next time).
     pub failed: u64,
+}
+
+/// What importing a voice link recording produced.
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+pub struct VoiceLinkReport {
+    pub track_id: u64,
+    pub path: String,
+    pub title: String,
+    pub duration_ms: u32,
 }
 
 #[cfg(test)]

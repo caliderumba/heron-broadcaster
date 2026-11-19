@@ -86,6 +86,13 @@ pub struct TrackRequest {
     /// Where the intro ends (the vocals start), in ms on the file's timeline.
     #[serde(default)]
     pub intro_ms: Option<u32>,
+    /// Whether playing this track on FX ducks the music decks (default true).
+    #[serde(default = "default_true")]
+    pub ducks_music: bool,
+}
+
+const fn default_true() -> bool {
+    true
 }
 
 impl TrackRequest {
@@ -277,7 +284,7 @@ impl Player {
         events: broadcast::Sender<PlayerEvent>,
         now_playing: watch::Sender<NowPlaying>,
     ) -> Self {
-        Self {
+        let mut player = Self {
             library_dir,
             settings,
             eq: EqSettings::default(),
@@ -308,7 +315,9 @@ impl Player {
             held: false,
             halted: None,
             resuming: None,
-        }
+        };
+        let _ = player.send(Command::SetDucking(player.settings.ducking));
+        player
     }
 
     /// Replaces how tracks are opened (decode threads by default).
@@ -655,6 +664,9 @@ impl Player {
                 params,
                 glide: true,
             })?;
+        }
+        if settings.ducking != self.settings.ducking {
+            self.send(Command::SetDucking(settings.ducking))?;
         }
         self.settings = settings;
         Ok(())
@@ -1281,6 +1293,7 @@ impl Player {
             gain: db_to_gain(playout.gain_db(&self.settings.loudness)),
             fade_in,
             generation: self.cue_generation,
+            ducks_music: entry.track.ducks_music,
         }))
     }
 

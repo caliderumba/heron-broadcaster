@@ -16,7 +16,7 @@ pub use eq::{DeckEq, EQ_BANDS, EQ_MAX_GAIN_DB, EqSettings};
 pub use file::{FileStamp, LibraryPath};
 pub use output::{EncoderKind, EncoderProfile, OutputConfig, OutputKind, OutputsConfig};
 pub use playout::{
-    CrossfadeSettings, FadeCurve, LoudnessSettings, PlaySource, PlayoutSettings,
+    CrossfadeSettings, DuckingSettings, FadeCurve, LoudnessSettings, PlaySource, PlayoutSettings,
     SilenceWatchdogSettings, TrackOverrides, TrackPlayout, Transition, plan_transition,
 };
 pub use settings::{AnalysisSettings, LibrarySettings};

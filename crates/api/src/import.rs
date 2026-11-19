@@ -574,12 +574,19 @@ pub struct ImportCategoryChoice {
     /// Offered by the FX player (set when the category is created).
     #[serde(default)]
     pub fx_player: bool,
+    /// Whether playing tracks in this category ducks the music on main decks (default true).
+    #[serde(default = "default_true")]
+    pub ducks_music: bool,
     /// Its type (`GET /category-types`), set when the category is created.
     #[serde(default)]
     pub type_id: Option<u64>,
     /// Its tracks are disabled: rotation never picks them.
     #[serde(default)]
     pub disable_tracks: bool,
+}
+
+const fn default_true() -> bool {
+    true
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Deserialize, ToSchema)]
@@ -1112,20 +1119,23 @@ async fn category(
     if let Some(id) = existing {
         return Ok(id);
     }
-    let id = sqlx::query("INSERT INTO categories (name, type_id, fx_player) VALUES (?, ?, ?)")
-        .bind(name)
-        .bind(choice.type_id)
-        .bind(choice.fx_player)
-        .execute(&mut **tx)
-        .await
-        .map_err(|error| {
-            if crate::error::is_still_used(&error) {
-                ApiError::Invalid(format!("category {name:?}: no such category type"))
-            } else {
-                error.into()
-            }
-        })?
-        .last_insert_id();
+    let id = sqlx::query(
+        "INSERT INTO categories (name, type_id, fx_player, ducks_music) VALUES (?, ?, ?, ?)",
+    )
+    .bind(name)
+    .bind(choice.type_id)
+    .bind(choice.fx_player)
+    .bind(choice.ducks_music)
+    .execute(&mut **tx)
+    .await
+    .map_err(|error| {
+        if crate::error::is_still_used(&error) {
+            ApiError::Invalid(format!("category {name:?}: no such category type"))
+        } else {
+            error.into()
+        }
+    })?
+    .last_insert_id();
     // The first station's, until an import chooses its stations.
     sqlx::query(
         "INSERT INTO category_stations (category_id, station_id) SELECT ?, MIN(id) FROM stations",

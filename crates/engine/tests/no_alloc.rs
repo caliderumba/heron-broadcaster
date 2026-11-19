@@ -97,6 +97,7 @@ fn track(entry_id: u64, frames: usize) -> Box<LoadedTrack> {
             level: 0.0,
         }),
         generation: 0,
+        ducks_music: true,
     })
 }
 
@@ -194,11 +195,35 @@ fn the_mixer_does_not_allocate() {
                     gain: 1.0,
                     fade_in: None,
                     generation: 0,
+                    ducks_music: true,
                 }),
                 transition: FrameTransition::back_to_back(),
             },
         ),
         (170, Command::Uncue),
+        (
+            175,
+            Command::SetDucking(heron_core::DuckingSettings {
+                enabled: true,
+                depth_db: -12.0,
+                attack_ms: 100,
+                release_ms: 300,
+            }),
+        ),
+        (
+            180,
+            Command::PlayFx(Box::new(LoadedTrack {
+                entry_id: 8,
+                source: Box::new(Starved),
+                length: 48_000,
+                start: 0,
+                gain: 1.0,
+                fade_in: None,
+                generation: 0,
+                ducks_music: true,
+            })),
+        ),
+        (190, Command::StopFx),
     ];
     // The AGC chain: on from the start, then every block moved and switched,
     // during crossfades too.
@@ -306,6 +331,7 @@ fn reading_decoded_tracks_does_not_allocate() {
         gain: 1.0,
         fade_in: None,
         generation: 0,
+        ducks_music: true,
     });
     assert!(
         handle
