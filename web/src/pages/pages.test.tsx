@@ -14,6 +14,7 @@ import { Agc } from "./Agc";
 import { Announcements } from "./Announcements";
 import { Artists } from "./Artists";
 import { Buffer } from "./Buffer";
+import { Campaigns } from "./Campaigns";
 import { Categories } from "./Categories";
 import { Clocks } from "./Clocks";
 import { Dashboard } from "./Dashboard";
@@ -43,6 +44,7 @@ const PAGES: [string, () => ReactElement][] = [
   ["Announcements", () => <Announcements />],
   ["Artists", () => <Artists />],
   ["Buffer", () => <Buffer />],
+  ["Campaigns", () => <Campaigns />],
   ["Categories", () => <Categories />],
   ["Clocks", () => <Clocks />],
   ["Dashboard", () => <Dashboard />],

@@ -40,6 +40,7 @@ import { Rotation } from "./pages/Rotation";
 import { Schedule } from "./pages/Schedule";
 import { Events } from "./pages/Events";
 import { Announcements } from "./pages/Announcements";
+import { Campaigns } from "./pages/Campaigns";
 import { Settings } from "./pages/Settings";
 import { Stations } from "./pages/Stations";
 import { Statistics } from "./pages/Statistics";
@@ -134,6 +135,8 @@ function route(pathname: string): ReactNode {
       return <Events />;
     case "/announcements":
       return <Announcements />;
+    case "/campaigns":
+      return <Campaigns />;
     case "/restrictions":
       return <Restrictions />;
     case "/rotation-log":

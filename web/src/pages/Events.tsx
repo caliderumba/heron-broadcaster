@@ -39,6 +39,8 @@ const ACTION_TYPE_LABELS: Record<ActionType, PlainKey> = {
   load_clock: "events.actionTypes.load_clock",
   announce_time: "events.actionTypes.announce_time",
   announce_weather: "events.actionTypes.announce_weather",
+  play_campaign: "events.actionTypes.play_campaign",
+  play_ad_block: "events.actionTypes.play_ad_block",
 };
 
 const DAYS = [
