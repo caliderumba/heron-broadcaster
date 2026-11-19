@@ -70,10 +70,10 @@ M21 combines these to deliver seamless spoken time announcements, automated weat
 
 ## Acceptance criteria
 
-- [ ] Spoken time concatenates intro, hour, minute (and AM/PM when applicable) accurately reflecting the station's timezone without gaps.
-- [ ] During spoken time or weather announcements, music on Decks A/B ducks cleanly according to M19 settings and releases when the announcement concludes.
-- [ ] Weather service retrieves current temperature and condition from Open-Meteo for the configured coordinates and caches results reliably.
-- [ ] In M20 Scheduled Events, `announce_time` and `announce_weather` actions fire on schedule and play the correct announcements.
-- [ ] In M18 Cart Wall, pads assigned to Announce Time or Weather trigger the spoken announcement immediately with visual feedback.
-- [ ] Web UI displays announcement settings, lets operators preview time and weather phrases, and updates weather status.
-- [ ] All quality gates pass (`check-spdx.sh`, `cargo fmt`, `cargo clippy`, `cargo test`, `npm run typecheck`, `npm run test`, `npm run coverage`, `npm run generate-api`).
+- [x] Spoken time concatenates intro, hour, minute (and AM/PM when applicable) accurately reflecting the station's timezone without gaps.
+- [x] During spoken time or weather announcements, music on Decks A/B ducks cleanly according to M19 settings and releases when the announcement concludes.
+- [x] Weather service retrieves current temperature and condition from Open-Meteo for the configured coordinates and caches results reliably.
+- [x] In M20 Scheduled Events, `announce_time` and `announce_weather` actions fire on schedule and play the correct announcements.
+- [x] In M18 Cart Wall, pads assigned to Announce Time or Weather trigger the spoken announcement immediately with visual feedback.
+- [x] Web UI displays announcement settings, lets operators preview time and weather phrases, and updates weather status.
+- [x] All quality gates pass (`check-spdx.sh`, `cargo fmt`, `cargo clippy`, `cargo test`, `npm run typecheck`, `npm run test`, `npm run coverage`, `npm run generate-api`).
