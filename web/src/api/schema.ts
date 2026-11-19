@@ -667,6 +667,128 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/campaigns": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Lists all campaigns for a station. */
+        get: operations["list_campaigns"];
+        put?: never;
+        /** Creates a new campaign. */
+        post: operations["create_campaign"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/campaigns/log-play": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Logs a spot playout for audit and Proof of Play reporting. */
+        post: operations["log_play"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/campaigns/next-break": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Assembles the next commercial break from active eligible campaigns. */
+        post: operations["next_break"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/campaigns/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Retrieves a campaign with its attached audio spots. */
+        get: operations["get_campaign"];
+        /** Updates an existing campaign. */
+        put: operations["update_campaign"];
+        post?: never;
+        /** Deletes a campaign and its spots. */
+        delete: operations["delete_campaign"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/campaigns/{id}/proof-of-play": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Generates a Proof of Play report for a campaign. */
+        get: operations["get_proof_of_play"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/campaigns/{id}/spots": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Attaches an audio track spot to a campaign. */
+        post: operations["add_spot"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/campaigns/{id}/spots/{spot_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Removes a spot from a campaign. */
+        delete: operations["delete_spot"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/cart-pages": {
         parameters: {
             query?: never;
@@ -2809,6 +2931,128 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/stations/{station_id}/campaigns": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Lists all campaigns for a station. */
+        get: operations["list_campaigns_on_station"];
+        put?: never;
+        /** Creates a new campaign. */
+        post: operations["create_campaign_on_station"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/stations/{station_id}/campaigns/log-play": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Logs a spot playout for audit and Proof of Play reporting. */
+        post: operations["log_play_on_station"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/stations/{station_id}/campaigns/next-break": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Assembles the next commercial break from active eligible campaigns. */
+        post: operations["next_break_on_station"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/stations/{station_id}/campaigns/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Retrieves a campaign with its attached audio spots. */
+        get: operations["get_campaign_on_station"];
+        /** Updates an existing campaign. */
+        put: operations["update_campaign_on_station"];
+        post?: never;
+        /** Deletes a campaign and its spots. */
+        delete: operations["delete_campaign_on_station"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/stations/{station_id}/campaigns/{id}/proof-of-play": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Generates a Proof of Play report for a campaign. */
+        get: operations["get_proof_of_play_on_station"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/stations/{station_id}/campaigns/{id}/spots": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Attaches an audio track spot to a campaign. */
+        post: operations["add_spot_on_station"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/stations/{station_id}/campaigns/{id}/spots/{spot_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Removes a spot from a campaign. */
+        delete: operations["delete_spot_on_station"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/stations/{station_id}/cart-pages": {
         parameters: {
             query?: never;
@@ -4450,7 +4694,14 @@ export interface components {
             track_min: number;
         };
         /** @enum {string} */
-        ActionType: "play_track" | "play_category" | "relay" | "load_clock" | "announce_time" | "announce_weather";
+        ActionType: "play_track" | "play_category" | "relay" | "load_clock" | "announce_time" | "announce_weather" | "play_campaign" | "play_ad_block";
+        AddSpotRequest: {
+            enabled?: boolean | null;
+            /** Format: int64 */
+            track_id: number;
+            /** Format: int32 */
+            weight?: number | null;
+        };
         /** @description The AGC chain's meters. Gain reductions are in dB, 0 or less. */
         AgcLevels: {
             /**
@@ -5092,6 +5343,56 @@ export interface components {
              */
             min_free_bytes: number;
         };
+        Campaign: {
+            client_name: string;
+            /** Format: int32 */
+            daily_delivered_plays: number;
+            /** Format: int32 */
+            daily_target: number;
+            /** Format: int32 */
+            days_mask: number;
+            /** Format: int32 */
+            delivered_plays: number;
+            end_date: string;
+            /** Format: int32 */
+            end_hour: number;
+            /** Format: int64 */
+            id: number;
+            name: string;
+            /** Format: int32 */
+            priority: number;
+            /** Format: int32 */
+            spots_count: number;
+            start_date: string;
+            /** Format: int32 */
+            start_hour: number;
+            /** Format: int64 */
+            station_id: number;
+            status: components["schemas"]["CampaignStatus"];
+            /** Format: int32 */
+            total_target: number;
+        };
+        CampaignSpotDetail: {
+            artist: string;
+            /** Format: int64 */
+            campaign_id: number;
+            /** Format: int32 */
+            duration_ms: number;
+            enabled: boolean;
+            /** Format: int64 */
+            id: number;
+            title: string;
+            /** Format: int64 */
+            track_id: number;
+            /** Format: int32 */
+            weight: number;
+        };
+        /** @enum {string} */
+        CampaignStatus: "active" | "paused" | "completed" | "expired";
+        CampaignWithSpots: {
+            campaign: components["schemas"]["Campaign"];
+            spots: components["schemas"]["CampaignSpotDetail"][];
+        };
         /** @description A pad: a track the FX player fires, with the operator's label and colour. */
         Cart: {
             artist?: string | null;
@@ -5387,6 +5688,25 @@ export interface components {
              *     not be written.
              */
             left_in_clear: string[];
+        };
+        CreateCampaignRequest: {
+            client_name: string;
+            /** Format: int32 */
+            daily_target?: number | null;
+            /** Format: int32 */
+            days_mask?: number | null;
+            end_date: string;
+            /** Format: int32 */
+            end_hour?: number | null;
+            name: string;
+            /** Format: int32 */
+            priority?: number | null;
+            start_date: string;
+            /** Format: int32 */
+            start_hour?: number | null;
+            status?: components["schemas"]["CampaignStatus"] | null;
+            /** Format: int32 */
+            total_target?: number | null;
         };
         CreateEventRequest: {
             action_data: unknown;
@@ -6732,6 +7052,18 @@ export interface components {
             /** @enum {string} */
             type: "system";
         });
+        LogPlayRequest: {
+            /** Format: int64 */
+            campaign_id: number;
+            /** Format: int32 */
+            duration_ms: number;
+            /** Format: int64 */
+            played_at_unix_ms?: number | null;
+            /** Format: int64 */
+            spot_id?: number | null;
+            /** Format: int64 */
+            track_id: number;
+        };
         LoginRequest: {
             password: string;
             username: string;
@@ -7043,6 +7375,27 @@ export interface components {
              */
             station_roles?: components["schemas"]["StationRole"][] | null;
             username: string;
+        };
+        NextBreakRequest: {
+            /** Format: int32 */
+            max_duration_seconds?: number | null;
+            max_spots?: number | null;
+        };
+        NextBreakResponse: {
+            spots: components["schemas"]["NextBreakSpot"][];
+            /** Format: int32 */
+            total_duration_ms: number;
+        };
+        NextBreakSpot: {
+            artist: string;
+            /** Format: int64 */
+            campaign_id: number;
+            campaign_name: string;
+            /** Format: int32 */
+            duration_ms: number;
+            title: string;
+            /** Format: int64 */
+            track_id: number;
         };
         /** @description When the schedule playing changes next. */
         NextChange: {
@@ -7554,6 +7907,35 @@ export interface components {
              *     ]
              */
             sound_codes: string[];
+        };
+        ProofOfPlayItem: {
+            artist: string;
+            /** Format: int32 */
+            duration_ms: number;
+            /** Format: int64 */
+            id: number;
+            /** Format: int64 */
+            played_at_unix_ms: number;
+            title: string;
+            /** Format: int64 */
+            track_id: number;
+        };
+        ProofOfPlayReport: {
+            /** Format: int64 */
+            campaign_id: number;
+            campaign_name: string;
+            client_name: string;
+            /** Format: int32 */
+            delivered_plays: number;
+            from_date?: string | null;
+            /** Format: double */
+            fulfillment_percent: number;
+            plays: components["schemas"]["ProofOfPlayItem"][];
+            to_date?: string | null;
+            /** Format: int64 */
+            total_broadcast_ms: number;
+            /** Format: int32 */
+            total_target: number;
         };
         /** @description One play. */
         PublicPlay: {
@@ -9238,6 +9620,25 @@ export interface components {
             position: number;
             title?: string | null;
         };
+        UpdateCampaignRequest: {
+            client_name?: string | null;
+            /** Format: int32 */
+            daily_target?: number | null;
+            /** Format: int32 */
+            days_mask?: number | null;
+            end_date?: string | null;
+            /** Format: int32 */
+            end_hour?: number | null;
+            name?: string | null;
+            /** Format: int32 */
+            priority?: number | null;
+            start_date?: string | null;
+            /** Format: int32 */
+            start_hour?: number | null;
+            status?: components["schemas"]["CampaignStatus"] | null;
+            /** Format: int32 */
+            total_target?: number | null;
+        };
         UpdateEventRequest: {
             action_data: unknown;
             action_type: components["schemas"]["ActionType"];
@@ -10760,6 +11161,315 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["Testing"];
                 };
+            };
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+        };
+    };
+    list_campaigns: {
+        parameters: {
+            query?: {
+                status?: components["schemas"]["CampaignStatus"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Campaign"][];
+                };
+            };
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+        };
+    };
+    create_campaign: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateCampaignRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Campaign"];
+                };
+            };
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+        };
+    };
+    log_play: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LogPlayRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+        };
+    };
+    next_break: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NextBreakRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NextBreakResponse"];
+                };
+            };
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+        };
+    };
+    get_campaign: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Campaign ID */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CampaignWithSpots"];
+                };
+            };
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+        };
+    };
+    update_campaign: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Campaign ID */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateCampaignRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Campaign"];
+                };
+            };
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+        };
+    };
+    delete_campaign: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Campaign ID */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+        };
+    };
+    get_proof_of_play: {
+        parameters: {
+            query?: {
+                from_date?: string;
+                to_date?: string;
+            };
+            header?: never;
+            path: {
+                /** @description Campaign ID */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProofOfPlayReport"];
+                };
+            };
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+        };
+    };
+    add_spot: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Campaign ID */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AddSpotRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CampaignSpotDetail"];
+                };
+            };
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+        };
+    };
+    delete_spot: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Campaign ID */
+                id: number;
+                /** @description Spot ID */
+                spot_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             "4XX": {
                 headers: {
@@ -15809,6 +16519,339 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["WeatherStatus"];
                 };
+            };
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+        };
+    };
+    list_campaigns_on_station: {
+        parameters: {
+            query?: {
+                status?: components["schemas"]["CampaignStatus"];
+            };
+            header?: never;
+            path: {
+                /** @description The station's ID */
+                station_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Campaign"][];
+                };
+            };
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+        };
+    };
+    create_campaign_on_station: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The station's ID */
+                station_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateCampaignRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Campaign"];
+                };
+            };
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+        };
+    };
+    log_play_on_station: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The station's ID */
+                station_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LogPlayRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+        };
+    };
+    next_break_on_station: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The station's ID */
+                station_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NextBreakRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NextBreakResponse"];
+                };
+            };
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+        };
+    };
+    get_campaign_on_station: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The station's ID */
+                station_id: number;
+                /** @description Campaign ID */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CampaignWithSpots"];
+                };
+            };
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+        };
+    };
+    update_campaign_on_station: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The station's ID */
+                station_id: number;
+                /** @description Campaign ID */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateCampaignRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Campaign"];
+                };
+            };
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+        };
+    };
+    delete_campaign_on_station: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The station's ID */
+                station_id: number;
+                /** @description Campaign ID */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+        };
+    };
+    get_proof_of_play_on_station: {
+        parameters: {
+            query?: {
+                from_date?: string;
+                to_date?: string;
+            };
+            header?: never;
+            path: {
+                /** @description The station's ID */
+                station_id: number;
+                /** @description Campaign ID */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProofOfPlayReport"];
+                };
+            };
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+        };
+    };
+    add_spot_on_station: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The station's ID */
+                station_id: number;
+                /** @description Campaign ID */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AddSpotRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CampaignSpotDetail"];
+                };
+            };
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+        };
+    };
+    delete_spot_on_station: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The station's ID */
+                station_id: number;
+                /** @description Campaign ID */
+                id: number;
+                /** @description Spot ID */
+                spot_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             "4XX": {
                 headers: {

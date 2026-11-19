@@ -28,8 +28,8 @@ use crate::listeners::Collector;
 use crate::stations::Stations;
 use crate::webhooks::Webhooks;
 use crate::{
-    about, agc, announcements, artists, carts, categories, category_types, clocks, eq, events,
-    history, import, labels, librarian, listeners, live, medleys, outputs, player, public,
+    about, agc, announcements, artists, campaigns, carts, categories, category_types, clocks, eq,
+    events, history, import, labels, librarian, listeners, live, medleys, outputs, player, public,
     restrictions, rotation, schedules, selection, settings, staging, stations, tracks, users,
     voice_links, webhooks,
 };
@@ -84,6 +84,7 @@ pub struct AppState {
         (name = "rotation", description = "Clocks, the schedule, restrictions, the rotation log and simulations"),
         (name = "events", description = "Scheduled events: timed actions that fire on schedule"),
         (name = "announcements", description = "Spoken time, weather and station announcements"),
+        (name = "campaigns", description = "Advertising campaigns, sponsor spots and proof-of-play"),
         (name = "history", description = "What was played"),
         (name = "stations", description = "The stations, each with its own engine and programming"),
         (name = "settings", description = "Settings: shared ones, and each station's own"),
@@ -139,6 +140,7 @@ fn api() -> OpenApiRouter<AppState> {
         .merge(rotation::router())
         .merge(events::router())
         .merge(announcements::router())
+        .merge(campaigns::router())
         .merge(history::router())
         .merge(settings::router())
         .merge(eq::router())

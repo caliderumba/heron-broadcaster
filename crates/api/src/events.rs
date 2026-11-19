@@ -108,6 +108,8 @@ pub enum ActionType {
     LoadClock,
     AnnounceTime,
     AnnounceWeather,
+    PlayCampaign,
+    PlayAdBlock,
 }
 
 impl ActionType {
@@ -119,6 +121,8 @@ impl ActionType {
             Self::LoadClock => "load_clock",
             Self::AnnounceTime => "announce_time",
             Self::AnnounceWeather => "announce_weather",
+            Self::PlayCampaign => "play_campaign",
+            Self::PlayAdBlock => "play_ad_block",
         }
     }
 }
@@ -134,6 +138,8 @@ impl FromStr for ActionType {
             "load_clock" => Ok(Self::LoadClock),
             "announce_time" => Ok(Self::AnnounceTime),
             "announce_weather" => Ok(Self::AnnounceWeather),
+            "play_campaign" => Ok(Self::PlayCampaign),
+            "play_ad_block" => Ok(Self::PlayAdBlock),
             other => Err(ApiError::BadRequest(format!(
                 "invalid action type: {other}"
             ))),
@@ -801,6 +807,18 @@ pub async fn execute_event(
                 "scheduled announce_weather action invoked"
             );
         }
+        ActionType::PlayCampaign => {
+            tracing::info!(
+                station_id = station.id(),
+                "scheduled play_campaign action invoked"
+            );
+        }
+        ActionType::PlayAdBlock => {
+            tracing::info!(
+                station_id = station.id(),
+                "scheduled play_ad_block action invoked"
+            );
+        }
     }
 
     Ok(())
@@ -941,6 +959,17 @@ mod tests {
         assert_eq!(
             "load_clock".parse::<ActionType>().unwrap(),
             ActionType::LoadClock
+        );
+        assert_eq!(ActionType::PlayCampaign.as_str(), "play_campaign");
+        assert_eq!(ActionType::PlayAdBlock.as_str(), "play_ad_block");
+
+        assert_eq!(
+            "play_campaign".parse::<ActionType>().unwrap(),
+            ActionType::PlayCampaign
+        );
+        assert_eq!(
+            "play_ad_block".parse::<ActionType>().unwrap(),
+            ActionType::PlayAdBlock
         );
         assert!("invalid".parse::<ActionType>().is_err());
     }

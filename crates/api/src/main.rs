@@ -13,6 +13,7 @@ mod app;
 mod artists;
 mod auth;
 mod backups;
+mod campaigns;
 mod carts;
 mod categories;
 mod category_types;

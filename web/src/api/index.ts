@@ -87,6 +87,14 @@ export type WeatherStatus = Schemas["WeatherStatus"];
 export type AnnouncementPreview = Schemas["AnnouncementPreview"];
 export type TimeFormat = Schemas["TimeFormat"];
 export type WeatherUnits = Schemas["WeatherUnits"];
+export type Campaign = Schemas["Campaign"];
+export type CampaignSpotDetail = Schemas["CampaignSpotDetail"];
+export type CampaignStatus = Schemas["CampaignStatus"];
+export type CampaignWithSpots = Schemas["CampaignWithSpots"];
+export type ProofOfPlayReport = Schemas["ProofOfPlayReport"];
+export type ProofOfPlayItem = Schemas["ProofOfPlayItem"];
+export type NextBreakResponse = Schemas["NextBreakResponse"];
+export type NextBreakSpot = Schemas["NextBreakSpot"];
 
 export type TrackFilter = NonNullable<
   NonNullable<paths["/api/v1/tracks"]["get"]["parameters"]["query"]>["filter"]
