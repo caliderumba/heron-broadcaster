@@ -102,6 +102,12 @@ export type PublicSearchTrack = Schemas["PublicSearchTrack"];
 export type ListenerRequestView = Schemas["ListenerRequestView"];
 export type SubmitRequestPayload = Schemas["SubmitRequestPayload"];
 export type SubmitRequestResponse = Schemas["SubmitRequestResponse"];
+export type AirplayItem = Schemas["AirplayItem"];
+export type AirplayReportResponse = Schemas["AirplayReportResponse"];
+export type AirplaySummary = Schemas["AirplaySummary"];
+export type HourlyDistributionItem = Schemas["HourlyDistributionItem"];
+export type TopTrackItem = Schemas["TopTrackItem"];
+export type TopArtistItem = Schemas["TopArtistItem"];
 
 export type TrackFilter = NonNullable<
   NonNullable<paths["/api/v1/tracks"]["get"]["parameters"]["query"]>["filter"]

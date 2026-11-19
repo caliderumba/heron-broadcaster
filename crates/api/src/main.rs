@@ -37,6 +37,7 @@ mod outputs;
 mod player;
 mod public;
 mod queue;
+mod reports;
 mod requests;
 mod restrictions;
 mod rotation;

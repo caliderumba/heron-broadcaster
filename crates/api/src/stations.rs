@@ -44,7 +44,7 @@ const MAX_CODE_LENGTH: usize = 32;
 
 /// The first path segments, under `/api/v1`, of what is per station.
 /// `settings` is per station only for the groups in [`STATION_SETTINGS`].
-const PER_STATION: [&str; 21] = [
+const PER_STATION: [&str; 22] = [
     "engine",
     "live",
     "playout",
@@ -59,6 +59,7 @@ const PER_STATION: [&str; 21] = [
     "announcements",
     "campaigns",
     "requests",
+    "reports",
     "outputs",
     "webhooks",
     "webhook-deliveries",

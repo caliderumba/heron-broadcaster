@@ -2296,6 +2296,91 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/reports/airplay": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Lists airplay history records matching filters in a date range. */
+        get: operations["get_airplay_report"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/reports/airplay/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Exports airplay records to CSV or JSON format for copyright/royalty compliance. */
+        get: operations["export_airplay_report"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/reports/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Gets aggregate airplay performance statistics and daypart distribution. */
+        get: operations["get_airplay_summary"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/reports/top-artists": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Gets top played artists in a date range. */
+        get: operations["get_top_artists"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/reports/top-tracks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Gets top played tracks in a date range. */
+        get: operations["get_top_tracks"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/requests": {
         parameters: {
             query?: never;
@@ -3840,6 +3925,91 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/stations/{station_id}/reports/airplay": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Lists airplay history records matching filters in a date range. */
+        get: operations["get_airplay_report_on_station"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/stations/{station_id}/reports/airplay/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Exports airplay records to CSV or JSON format for copyright/royalty compliance. */
+        get: operations["export_airplay_report_on_station"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/stations/{station_id}/reports/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Gets aggregate airplay performance statistics and daypart distribution. */
+        get: operations["get_airplay_summary_on_station"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/stations/{station_id}/reports/top-artists": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Gets top played artists in a date range. */
+        get: operations["get_top_artists_on_station"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/stations/{station_id}/reports/top-tracks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Gets top played tracks in a date range. */
+        get: operations["get_top_tracks_on_station"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/stations/{station_id}/requests": {
         parameters: {
             query?: never;
@@ -5278,6 +5448,58 @@ export interface components {
              *     }
              */
             stereo_expander: components["schemas"]["StereoExpanderSettings"];
+        };
+        /** @description An airplay record for reporting and compliance. */
+        AirplayItem: {
+            album?: string | null;
+            artist: string;
+            deck: string;
+            /** Format: int32 */
+            duration_ms?: number | null;
+            end_reason?: string | null;
+            /** Format: int64 */
+            ended_at_unix_ms?: number | null;
+            /** Format: int64 */
+            id: number;
+            isrc?: string | null;
+            /** Format: int32 */
+            played_ms?: number | null;
+            source: string;
+            /** Format: int64 */
+            started_at_unix_ms: number;
+            title: string;
+            /** Format: int64 */
+            track_id?: number | null;
+        };
+        /** @description Paginated airplay report response. */
+        AirplayReportResponse: {
+            /** Format: int64 */
+            from_unix_ms: number;
+            items: components["schemas"]["AirplayItem"][];
+            /** Format: int64 */
+            to_unix_ms: number;
+            /** Format: int64 */
+            total: number;
+        };
+        /** @description High-level summary of station airplay performance in a date range. */
+        AirplaySummary: {
+            /** Format: int64 */
+            fallback_plays: number;
+            hourly_distribution: components["schemas"]["HourlyDistributionItem"][];
+            /** Format: int64 */
+            manual_plays: number;
+            /** Format: int64 */
+            request_plays: number;
+            /** Format: int64 */
+            rotation_plays: number;
+            /** Format: int64 */
+            total_airtime_ms: number;
+            /** Format: int64 */
+            total_plays: number;
+            /** Format: int64 */
+            unique_artists: number;
+            /** Format: int64 */
+            unique_tracks: number;
         };
         AnalysisQueueStatus: {
             /** Format: int64 */
@@ -6741,6 +6963,13 @@ export interface components {
              * @description The highest peak.
              */
             peak: number;
+        };
+        /** @description Playout volume in a specific hour of the day (0..23). */
+        HourlyDistributionItem: {
+            /** Format: int32 */
+            hour: number;
+            /** Format: int64 */
+            play_count: number;
         };
         ImportApplyRequest: {
             categories?: components["schemas"]["ImportCategoryChoice"][];
@@ -9528,6 +9757,32 @@ export interface components {
         TimeFormat: "h12" | "h24";
         /** @enum {string} */
         TimingMode: "exact" | "next";
+        /** @description A most-played artist in a time window. */
+        TopArtistItem: {
+            artist: string;
+            /** Format: int64 */
+            distinct_tracks: number;
+            /** Format: int64 */
+            last_played_at_unix_ms: number;
+            /** Format: int64 */
+            play_count: number;
+            /** Format: int64 */
+            total_played_ms: number;
+        };
+        /** @description A most-played track in a time window. */
+        TopTrackItem: {
+            album?: string | null;
+            artist: string;
+            /** Format: int64 */
+            last_played_at_unix_ms: number;
+            /** Format: int64 */
+            play_count: number;
+            title: string;
+            /** Format: int64 */
+            total_played_ms: number;
+            /** Format: int64 */
+            track_id?: number | null;
+        };
         TrackAnalysis: {
             /** Format: int64 */
             analyzed_at_unix_ms: number;
@@ -15260,6 +15515,166 @@ export interface operations {
             };
         };
     };
+    get_airplay_report: {
+        parameters: {
+            query?: {
+                from?: number;
+                to?: number;
+                source?: string;
+                search?: string;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AirplayReportResponse"];
+                };
+            };
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+        };
+    };
+    export_airplay_report: {
+        parameters: {
+            query?: {
+                from?: number;
+                to?: number;
+                source?: string;
+                search?: string;
+                format?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Airplay report export file */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/csv": unknown;
+                };
+            };
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+        };
+    };
+    get_airplay_summary: {
+        parameters: {
+            query?: {
+                from?: number;
+                to?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AirplaySummary"];
+                };
+            };
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+        };
+    };
+    get_top_artists: {
+        parameters: {
+            query?: {
+                from?: number;
+                to?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TopArtistItem"][];
+                };
+            };
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+        };
+    };
+    get_top_tracks: {
+        parameters: {
+            query?: {
+                from?: number;
+                to?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TopTrackItem"][];
+                };
+            };
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+        };
+    };
     list_requests: {
         parameters: {
             query?: {
@@ -19268,6 +19683,181 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+        };
+    };
+    get_airplay_report_on_station: {
+        parameters: {
+            query?: {
+                from?: number;
+                to?: number;
+                source?: string;
+                search?: string;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path: {
+                /** @description The station's ID */
+                station_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AirplayReportResponse"];
+                };
+            };
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+        };
+    };
+    export_airplay_report_on_station: {
+        parameters: {
+            query?: {
+                from?: number;
+                to?: number;
+                source?: string;
+                search?: string;
+                format?: string;
+            };
+            header?: never;
+            path: {
+                /** @description The station's ID */
+                station_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Airplay report export file */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/csv": unknown;
+                };
+            };
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+        };
+    };
+    get_airplay_summary_on_station: {
+        parameters: {
+            query?: {
+                from?: number;
+                to?: number;
+            };
+            header?: never;
+            path: {
+                /** @description The station's ID */
+                station_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AirplaySummary"];
+                };
+            };
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+        };
+    };
+    get_top_artists_on_station: {
+        parameters: {
+            query?: {
+                from?: number;
+                to?: number;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                /** @description The station's ID */
+                station_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TopArtistItem"][];
+                };
+            };
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+        };
+    };
+    get_top_tracks_on_station: {
+        parameters: {
+            query?: {
+                from?: number;
+                to?: number;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                /** @description The station's ID */
+                station_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TopTrackItem"][];
                 };
             };
             "4XX": {
