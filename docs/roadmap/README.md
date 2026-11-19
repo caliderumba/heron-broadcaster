@@ -34,12 +34,12 @@ Progress is tracked here: the status column below and the acceptance checklists 
 | M19 | [Ducking and voice links](m19-ducking-voice.md) | M2, M18 | Done (PR pending) |
 | M20 | [Scheduled events](m20-events.md) | M2, M4, M6, M18 | Done (PR pending) |
 | M21 | [Spoken time, weather and station IDs](m21-spoken-time.md) | M18, M19, M20 | Done (PR pending) |
-| M22 | [Reports and airplay](m22-reports.md) | M4, M5 | Planned |
-| M23 | [Listener requests](m23-requests.md) | M4, M5, M6 | Planned |
-| M24 | [Advertising campaigns](m24-advertising.md) | M6, M20, M22 | Planned |
+| M24 | [Advertising campaigns](m24-advertising.md) | M6, M20 | In progress (`m24-advertising`: docs) |
 | M25 | [Themes: studio mode and high contrast](m25-themes.md) | M18–M24, M5 | Planned |
+| M23 | [Listener requests](m23-requests.md) | M4, M5, M6 | Planned |
+| M22 | [Reports and airplay](m22-reports.md) | M4, M5 | Planned |
 
-**M18–M25** turn the comparison with RadioDJ v1, SAM Broadcaster and RadioBOSS into work: the cart wall and its shortcuts, ducking and voice links, scheduled events, spoken time, reports, listener requests, advertising and the studio's themes. M18, M19, M20 and M21 have their work and PRs completed; M22 is next; the rest are planned, not started; the order is the recommended one and each file says what it depends on. M18, M19, M20 and M21 change a station's day the most; M24 can wait for the first advertising contract; M25 closes with what the studio screens need.
+**M18–M25** turn the comparison with RadioDJ v1, SAM Broadcaster and RadioBOSS into work: the cart wall and its shortcuts, ducking and voice links, scheduled events, spoken time, advertising, themes, listener requests and reports. M18, M19, M20 and M21 have their work and PRs completed; M24 is in progress; the rest are planned; the order follows user prioritization and each file says what it depends on. M18, M19, M20 and M21 change a station's day the most; M24 brings commercial advertising campaigns and proof-of-play; M25 and M23 follow, with M22 completing the series.
 
 ## Dependency graph
 

@@ -190,6 +190,16 @@ Authentication is local only for now ([Decisions](decisions.md#decisions-made-af
 |---|---|
 | `station_announcements` | station_id (PK, FK stations), time_enabled, time_format (`12h`, `24h`), time_voice_pack, weather_enabled, weather_city, weather_latitude, weather_longitude, weather_units (`metric`, `imperial`), weather_cached_temp, weather_cached_summary, weather_fetched_at, updated_at |
 
+## Advertising and Campaigns
+
+See [M24](roadmap/m24-advertising.md).
+
+| Table | Columns |
+|---|---|
+| `campaigns` | id, station_id (FK stations), name, client_name, status (`active`, `paused`, `completed`, `expired`), start_date, end_date, daily_target, total_target, priority (1..10), days_of_week (bitmask 1..127), start_hour (0..23), end_hour (1..24), created_at, updated_at |
+| `campaign_spots` | id, campaign_id (FK campaigns, ON DELETE CASCADE), track_id (FK tracks, ON DELETE CASCADE), weight (1..100), enabled, created_at |
+| `campaign_plays` | id, station_id, campaign_id (FK campaigns, ON DELETE CASCADE), spot_id, track_id (FK tracks), played_at, duration_ms |
+
 ## Relationships
 
 ```
@@ -218,4 +228,6 @@ users 1──* sessions, api_tokens
 encoder_profiles 1──* outputs
 stations 1──* scheduled_events
 stations 1──0..1 station_announcements
+stations 1──* campaigns 1──* campaign_spots *──1 tracks
+campaigns 1──* campaign_plays *──1 tracks
 ```

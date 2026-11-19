@@ -102,6 +102,17 @@ On *Announcements*, operators and admins configure automated voice announcements
 
 The routes are in [API – Announcements](api.md#routes) (`/stations/{id}/announcements/time`, `/stations/{id}/announcements/weather`).
 
+## Advertising and campaigns
+
+On *Campaigns*, operators and admins manage commercial sponsor campaigns and spot playout compliance:
+- **Campaigns overview:** browse campaigns filtered by status (*All*, *Active*, *Paused*, *Completed*, *Expired*). Cards show client name, dates, priority badge, and a visual progress bar indicating delivered versus target playout quota.
+- **Flight and restriction settings:** configure campaign title, client, start/end dates, daily play limit, total campaign target, priority (1–10), active days of the week, and allowed hourly broadcasting window.
+- **Spot rotation:** attach commercial audio tracks from the library with relative rotation weights (e.g. 100, 50) and toggle individual spots.
+- **Proof of Play:** generate itemized compliance reports for any date range, displaying fulfillment percentage, total broadcast time, and a full chronological log of every broadcasted spot with exact timestamps and durations.
+- **Commercial breaks:** assemble or trigger commercial breaks on schedule via Scheduled Events actions (`play_campaign`, `play_ad_block`).
+
+The routes are in [API – Advertising](api.md#routes) (`/stations/{id}/campaigns`, `/stations/{id}/campaigns/{id}/proof-of-play`).
+
 ## Painting the schedule
 
 On *Schedule*, pick a clock (or *No clock*), then:
